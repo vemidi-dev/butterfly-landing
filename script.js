@@ -2,7 +2,7 @@
   'use strict';
 
   const PRICES = {
-    base: { 3: 15, 5: 20, 7: 25 },
+    base: { 3: 13.5, 5: 18, 7: 24 },
     personalize: 3,
   };
 

@@ -87,6 +87,7 @@
               <span>С име по избор</span>
             </li>
           </ul>
+          <p class="sales-nudge">Създадено от детски ръчички. Подарено от сърце.</p>
         </div>
         <div class="hero__visual">
           <figure class="hero__photo">
@@ -101,18 +102,18 @@
       <svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,24 C360,48 720,8 1080,32 C1260,40 1440,16 L1440,48 L0,48 Z"/></svg>
     </div>
 
-    <!-- Kit contents — 5 product cards -->
+    <!-- Kit contents — 6 product cards -->
     <section class="flow-section flow-section--kit" id="sadarzhanie">
       <div class="container">
         <h2 class="title-decor title-decor--plain">Какво има в комплекта?</h2>
         <p class="section__intro">Всичко необходимо за творческа магия — в една нежна кутия</p>
-        <div class="kit-row">
+        <div class="kit-row kit-row--six">
           <article class="kit-item">
-            <div class="kit-item__img"><img src="assets/elements.png" alt="Дървени фигурки"></div>
+            <div class="kit-item__img"><img src="assets/set-3.png" alt="Дървени фигурки"></div>
             <p>Дървени фигурки</p>
           </article>
           <article class="kit-item">
-            <div class="kit-item__img"><img src="assets/set-3.png" alt="Конци и дървени мъниста"></div>
+            <div class="kit-item__img"><img src="assets/manista.png" alt="Конци и дървени мъниста"></div>
             <p>Конци и дървени мъниста</p>
           </article>
           <article class="kit-item">
@@ -120,11 +121,15 @@
             <p>Бои с четка или флумастери</p>
           </article>
           <article class="kit-item">
-            <div class="kit-item__img"><img src="assets/name-close.png" alt="Дървена закачалка с опция за име"></div>
-            <p>Дървена закачалка · опция за име</p>
+            <div class="kit-item__img"><img src="assets/name-close.png" alt="Дървена закачалка"></div>
+            <p>Дървена закачалка</p>
           </article>
           <article class="kit-item">
-            <div class="kit-item__img"><img src="assets/broshure.png" alt="Лесни инструкции — брошура"></div>
+            <div class="kit-item__img"><img src="assets/personalized.png" alt="Опция за име"></div>
+            <p>Опция за име</p>
+          </article>
+          <article class="kit-item">
+            <div class="kit-item__img"><img src="assets/broshure.png" alt="Лесни инструкции"></div>
             <p>Лесни инструкции</p>
           </article>
         </div>
@@ -177,11 +182,12 @@
       <div class="container">
         <h2 class="title-decor">Избери своя комплект</h2>
         <p class="section__intro">Три размера магия за всеки повод</p>
+        <p class="sales-nudge sales-nudge--center">Не просто играчка, а спомен, създаден от детето.</p>
         <div class="variants-row">
           <article class="variant">
             <h3>Комплект Мини</h3>
             <p class="variant__tag">Малка магия</p>
-            <p class="variant__fig">3 фигурки · 29 лв.</p>
+            <p class="variant__fig">3 фигурки · 15 €</p>
             <p class="variant__desc">1 пеперуда + 2 водни кончета</p>
             <a href="#configurator" class="btn btn--outline btn--sm" data-preset="mini">Избери</a>
           </article>
@@ -189,14 +195,14 @@
             <span class="variant__badge">Най-подходящ за подарък</span>
             <h3>Комплект Стандарт</h3>
             <p class="variant__tag">Цветна магия</p>
-            <p class="variant__fig">5 фигурки · 39 лв.</p>
+            <p class="variant__fig">5 фигурки · 20 €</p>
             <p class="variant__desc">3 пеперуди + 2 водни кончета</p>
             <a href="#configurator" class="btn btn--primary btn--sm" data-preset="standard">Избери</a>
           </article>
           <article class="variant">
             <h3>Комплект Макси</h3>
             <p class="variant__tag">Пълна магия</p>
-            <p class="variant__fig">7 фигурки · 49 лв.</p>
+            <p class="variant__fig">7 фигурки · 25 €</p>
             <p class="variant__desc">3 пеперуди + 4 водни кончета</p>
             <a href="#configurator" class="btn btn--outline btn--sm" data-preset="maxi">Избери</a>
           </article>
@@ -209,7 +215,8 @@
       <div class="container">
         <header class="configurator-header">
           <h2 class="title-decor">Създай своя комплект</h2>
-          <p class="configurator-header__lead">Избери размер, оцветяване и допълнения — цената се обновява веднага. Готов подарък за 1 юни.</p>
+          <p class="configurator-header__lead">Избери размер, оцветяване и допълнения — цената се обновява веднага.</p>
+          <p class="sales-nudge sales-nudge--center">Избери до 1 юни и подари готово творческо преживяване.</p>
         </header>
         <div class="configurator__layout configurator-panel">
             <form class="config-form" id="configForm" novalidate>
@@ -220,21 +227,21 @@
                     <input type="radio" name="size" value="3" checked>
                     <span class="config-option__box">
                       <strong>Комплект Мини</strong>
-                      <span class="config-option__meta">3 фигурки · 1 пеперуда + 2 водни кончета · 29 лв.</span>
+                      <span class="config-option__meta">3 фигурки · 1 пеперуда + 2 водни кончета · 15 €</span>
                     </span>
                   </label>
                   <label class="config-option">
                     <input type="radio" name="size" value="5">
                     <span class="config-option__box">
                       <strong>Комплект Стандарт</strong>
-                      <span class="config-option__meta">5 фигурки · 3 пеперуди + 2 водни кончета · 39 лв.</span>
+                      <span class="config-option__meta">5 фигурки · 3 пеперуди + 2 водни кончета · 20 €</span>
                     </span>
                   </label>
                   <label class="config-option">
                     <input type="radio" name="size" value="7">
                     <span class="config-option__box">
                       <strong>Комплект Макси</strong>
-                      <span class="config-option__meta">7 фигурки · 3 пеперуди + 4 водни кончета · 49 лв.</span>
+                      <span class="config-option__meta">7 фигурки · 3 пеперуди + 4 водни кончета · 25 €</span>
                     </span>
                   </label>
                 </div>
@@ -255,7 +262,7 @@
               <fieldset class="config-group">
                 <legend class="config-group__legend-row">
                   <span>Име на закачалката</span>
-                  <span class="config-group__addon">+6 лв.</span>
+                  <span class="config-group__addon">+3 €</span>
                   <label class="toggle">
                     <input type="checkbox" name="personalize" id="personalizeToggle">
                     <span class="toggle__slider"></span>
@@ -264,21 +271,6 @@
                 <div class="config-field config-field--collapsed" id="nameField">
                   <label for="childName">Име на детето</label>
                   <input type="text" id="childName" name="childName" placeholder="Например: Мая" maxlength="24">
-                </div>
-              </fieldset>
-              <fieldset class="config-group">
-                <legend>Допълнения</legend>
-                <label class="config-check">
-                  <input type="checkbox" name="giftWrap" id="giftWrap">
-                  <span class="config-check__text"><span>Подаръчна опаковка</span><small>+5 лв.</small></span>
-                </label>
-                <label class="config-check">
-                  <input type="checkbox" name="greetingCard" id="greetingCard">
-                  <span class="config-check__text"><span>Картичка с послание</span><small>+3 лв.</small></span>
-                </label>
-                <div class="config-field config-field--collapsed" id="cardMessageField">
-                  <label for="cardMessage">Послание</label>
-                  <textarea id="cardMessage" name="cardMessage" rows="2" maxlength="200"></textarea>
                 </div>
               </fieldset>
             </form>
@@ -291,7 +283,7 @@
               <p id="summaryName" hidden></p>
               <p id="summaryCardMsg" hidden></p>
               <div class="config-summary__breakdown" id="priceBreakdown"></div>
-              <p class="config-summary__total"><span>Общо</span><strong id="totalPrice">29 лв.</strong></p>
+              <p class="config-summary__total"><span>Общо</span><strong id="totalPrice">15 €</strong></p>
               <div class="config-errors" id="configErrors" role="alert" hidden></div>
               <button type="button" class="btn btn--primary btn--block btn--lg" id="orderBtn">Поръчай Вълшебни пеперуди</button>
               <p class="config-summary__note">Ръчно изработено от VeMiDi crafts · с любов за 1 юни</p>
@@ -316,7 +308,8 @@
             <li><span aria-hidden="true">✦</span> Творческо преживяване</li>
             <li><span aria-hidden="true">✦</span> Украса, направена от детето</li>
           </ul>
-          <a href="#configurator" class="btn btn--primary">Избери комплект за 1 юни</a>
+          <p class="june-block__cta-note">Избери до 1 юни и подари готово творческо преживяване.</p>
+          <a href="#configurator" class="btn btn--primary btn--block-mobile">Избери комплект за 1 юни</a>
         </div>
         <figure class="june-block__visual">
           <img src="assets/personal.png" alt="Готова висяща украса в детска стая">
@@ -411,8 +404,7 @@
         <div class="faq__list">
           <details class="faq-item"><summary>За каква възраст е подходящ?</summary><p>Около 4–10 години, с помощ от възрастен.</p></details>
           <details class="faq-item"><summary>Колко фигурки има?</summary><p>Мини: 3 · Стандарт: 5 · Макси: 7.</p></details>
-          <details class="faq-item"><summary>Може ли с име?</summary><p>Да, в конфигуратора (+6 лв.).</p></details>
-          <details class="faq-item"><summary>Има ли картичка и опаковка?</summary><p>Да — подаръчна опаковка (+5 лв.) и картичка с послание (+3 лв.) в конфигуратора.</p></details>
+          <details class="faq-item"><summary>Може ли с име?</summary><p>Да, в конфигуратора (+3 €).</p></details>
         </div>
       </div>
     </section>

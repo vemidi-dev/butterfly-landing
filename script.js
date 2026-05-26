@@ -2,10 +2,8 @@
   'use strict';
 
   const PRICES = {
-    base: { 3: 29, 5: 39, 7: 49 },
-    personalize: 6,
-    giftWrap: 5,
-    greetingCard: 3,
+    base: { 3: 15, 5: 20, 7: 25 },
+    personalize: 3,
   };
 
   const KITS = {
@@ -53,16 +51,12 @@
   const summaryList = document.getElementById('summaryList');
   const summaryExtras = document.getElementById('summaryExtras');
   const summaryName = document.getElementById('summaryName');
-  const summaryCardMsg = document.getElementById('summaryCardMsg');
   const priceBreakdown = document.getElementById('priceBreakdown');
   const totalPriceEl = document.getElementById('totalPrice');
   const configErrors = document.getElementById('configErrors');
   const nameField = document.getElementById('nameField');
-  const cardMessageField = document.getElementById('cardMessageField');
   const personalizeToggle = document.getElementById('personalizeToggle');
-  const greetingCardCheck = document.getElementById('greetingCard');
   const childNameInput = document.getElementById('childName');
-  const cardMessageInput = document.getElementById('cardMessage');
   const orderBtn = document.getElementById('orderBtn');
   const orderModal = document.getElementById('orderModal');
   const modalSummary = document.getElementById('modalSummary');
@@ -80,7 +74,8 @@
   }
 
   function formatPrice(amount) {
-    return `${amount} лв.`;
+    if (Number.isInteger(amount)) return `${amount} €`;
+    return `${amount.toFixed(2).replace('.', ',')} €`;
   }
 
   function getFormState() {
@@ -90,9 +85,6 @@
       coloring: fd.get('coloring') || 'paints',
       personalize: fd.get('personalize') === 'on',
       childName: (fd.get('childName') || '').trim(),
-      giftWrap: fd.get('giftWrap') === 'on',
-      greetingCard: fd.get('greetingCard') === 'on',
-      cardMessage: (fd.get('cardMessage') || '').trim(),
     };
   }
 
@@ -102,14 +94,6 @@
     if (state.personalize) {
       total += PRICES.personalize;
       lines.push({ label: 'Персонализация с име', amount: PRICES.personalize });
-    }
-    if (state.giftWrap) {
-      total += PRICES.giftWrap;
-      lines.push({ label: 'Подаръчна опаковка', amount: PRICES.giftWrap });
-    }
-    if (state.greetingCard) {
-      total += PRICES.greetingCard;
-      lines.push({ label: 'Картичка с послание', amount: PRICES.greetingCard });
     }
     return { total, lines };
   }
@@ -127,7 +111,6 @@
     configErrors.hidden = true;
     configErrors.innerHTML = '';
     nameField?.classList.remove('config-field--error');
-    cardMessageField?.classList.remove('config-field--error');
   }
 
   function showErrors(messages) {
@@ -153,8 +136,6 @@
 
     const extras = [];
     if (state.personalize) extras.push('Персонализирана закачалка с име');
-    if (state.giftWrap) extras.push('Подаръчна опаковка');
-    if (state.greetingCard) extras.push('Картичка с послание');
 
     summaryExtras.innerHTML = extras.length
       ? `<p class="config-summary__extras-title">Допълнения</p><ul>${extras.map((e) => `<li>${escapeHtml(e)}</li>`).join('')}</ul>`
@@ -170,14 +151,8 @@
       summaryName.hidden = true;
     }
 
-    if (summaryCardMsg) {
-      if (state.greetingCard && state.cardMessage) {
-        summaryCardMsg.innerHTML = `<span>Послание:</span> „${escapeHtml(state.cardMessage)}“`;
-        summaryCardMsg.hidden = false;
-      } else {
-        summaryCardMsg.hidden = true;
-      }
-    }
+    const summaryCardMsg = document.getElementById('summaryCardMsg');
+    if (summaryCardMsg) summaryCardMsg.hidden = true;
 
     priceBreakdown.innerHTML = lines
       .map((row) => `<div class="price-line"><span>${escapeHtml(row.label)}</span><span>${formatPrice(row.amount)}</span></div>`)
@@ -193,11 +168,6 @@
       nameField?.classList.add('config-field--error');
       setFieldExpanded(nameField, true);
     }
-    if (state.greetingCard && !state.cardMessage) {
-      errors.push('Моля, напиши послание за картичката или премахни опцията.');
-      cardMessageField?.classList.add('config-field--error');
-      setFieldExpanded(cardMessageField, true);
-    }
     return errors;
   }
 
@@ -205,11 +175,6 @@
     const kit = KITS[state.size];
     const items = [kit.name, kit.figures, ...kit.items, COLORING_LABELS[state.coloring]];
     if (state.personalize && state.childName) items.push(`Закачалка с име: ${state.childName}`);
-    if (state.giftWrap) items.push('Подаръчна опаковка');
-    if (state.greetingCard) {
-      items.push('Картичка с послание');
-      if (state.cardMessage) items.push(`Послание: „${state.cardMessage}"`);
-    }
     return items;
   }
 
@@ -236,11 +201,6 @@
     updateSummary();
   });
 
-  greetingCardCheck?.addEventListener('change', () => {
-    setFieldExpanded(cardMessageField, greetingCardCheck.checked);
-    updateSummary();
-  });
-
   document.querySelectorAll('[data-preset]').forEach((link) => {
     link.addEventListener('click', () => {
       const preset = link.getAttribute('data-preset');
@@ -254,7 +214,6 @@
     if (errors.length) {
       showErrors(errors);
       if (state.personalize && !state.childName) childNameInput?.focus();
-      else if (state.greetingCard && !state.cardMessage) cardMessageInput?.focus();
       return;
     }
     clearErrors();
@@ -297,6 +256,5 @@
   });
 
   setFieldExpanded(nameField, false);
-  setFieldExpanded(cardMessageField, false);
   updateSummary();
 })();

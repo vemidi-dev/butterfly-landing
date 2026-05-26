@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вълшебни пеперуди | VeMiDi crafts</title>
+  <meta name="description" content="Творчески комплект „Вълшебни пеперуди“ от VeMiDi crafts — подарък за 1 юни.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="#" class="header__logo" aria-label="VeMiDi crafts">
+        <img src="assets/logo.png" alt="VeMiDi crafts" width="120" height="auto">
+      </a>
+      <button class="header__toggle" id="navToggle" aria-label="Меню" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="header__nav" id="mainNav">
+        <a href="#za-komplekta">За комплекта</a>
+        <a href="#sadarzhanie">Съдържание</a>
+        <a href="#kak-raboti">Как работи</a>
+        <a href="#varianti">Варианти</a>
+        <a href="#personalizacia">Персонализация</a>
+        <a href="#galeria">Галерия</a>
+        <a href="#configurator" class="btn btn--primary header__cta header__cta--mobile">Избери комплект</a>
+      </nav>
+      <a href="#configurator" class="btn btn--primary header__cta header__cta--desktop">Избери комплект</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- Hero -->
+    <section class="hero" id="za-komplekta">
+      <svg class="hero__defs" aria-hidden="true" width="0" height="0">
+        <defs>
+          <clipPath id="hero-image-curve" clipPathUnits="objectBoundingBox">
+            <path d="M 0.18 0 C 0.06 0.14, 0.02 0.3, 0.05 0.5 C 0.02 0.7, 0.08 0.86, 0.2 1 L 1 1 L 1 0 Z" />
+          </clipPath>
+        </defs>
+      </svg>
+      <div class="hero__grid">
+        <div class="hero__copy">
+          <div class="hero-kicker" aria-label="Творчески комплект">
+            <div class="hero-kicker__stamp">
+              <span class="hero-kicker__spark" aria-hidden="true">✦</span>
+              <span class="hero-kicker__text">
+                <span class="hero-kicker__row">Творчески</span>
+                <span class="hero-kicker__row">комплект</span>
+              </span>
+              <span class="hero-kicker__spark" aria-hidden="true">✦</span>
+            </div>
+            <div class="hero-kicker__tail" aria-hidden="true">
+              <span class="hero-kicker__line"></span>
+              <svg class="hero-kicker__butterfly" viewBox="0 0 28 18" width="22" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 9c-4-5.5-9.5-6.5-9.5-3S10 8.5 14 9M14 9c4-5.5 9.5-6.5 9.5-3S18 8.5 14 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+          <h1 class="hero__title">Вълшебни пеперуди</h1>
+          <p class="hero__script">магия, създадена от детски ръчички</p>
+          <p class="hero__text">
+            Подари за 1 юни не просто играчка, а преживяване. Детето сглобява, оцветява и оживява дървени пеперуди и водни кончета — после те политат в стаята като цветна градина от детството.
+          </p>
+          <div class="hero__actions">
+            <a href="#configurator" class="btn btn--primary">Избери своя комплект</a>
+            <a href="#personalizacia" class="btn btn--outline">Добави име на закачалката</a>
+          </div>
+          <ul class="hero__features">
+            <li>
+              <span class="hero__feature-icon" aria-hidden="true">🎁</span>
+              <span>Подходящ за 1 юни</span>
+            </li>
+            <li>
+              <span class="hero__feature-icon" aria-hidden="true">✋</span>
+              <span>Ръчно изработено</span>
+            </li>
+            <li>
+              <span class="hero__feature-icon" aria-hidden="true">🌿</span>
+              <span>Натурални материали</span>
+            </li>
+            <li>
+              <span class="hero__feature-icon" aria-hidden="true">✦</span>
+              <span>С име по избор</span>
+            </li>
+          </ul>
+        </div>
+        <div class="hero__visual">
+          <figure class="hero__photo">
+            <img src="assets/personal.png" alt="Персонализиран комплект с име в детска стая">
+          </figure>
+          <span class="hero__badge">Персонализирано с името на детето</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="wave wave--cream" aria-hidden="true">
+      <svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,24 C360,48 720,8 1080,32 C1260,40 1440,16 L1440,48 L0,48 Z"/></svg>
+    </div>
+
+    <!-- Kit contents — 5 product cards -->
+    <section class="flow-section flow-section--kit" id="sadarzhanie">
+      <div class="container">
+        <h2 class="title-decor">Какво има в комплекта?</h2>
+        <p class="section__intro">Всичко необходимо за творческа магия — в една нежна кутия</p>
+        <div class="kit-row kit-row--six">
+          <article class="kit-item">
+            <div class="kit-item__img"><img src="assets/hero.png" alt="Дървени фигурки от комплекта"></div>
+            <p>3, 5 или 7 дървени фигурки</p>
+          </article>
+          <article class="kit-item">
+            <div class="kit-item__img"><img src="assets/hero-1.png" alt="Пеперуди и водни кончета"></div>
+            <p>Пеперуди и водни кончета</p>
+          </article>
+          <article class="kit-item">
+            <div class="kit-item__img">
+              <div class="visual-placeholder" role="img" aria-label="Конци и дървени мъниста">
+                <span class="visual-placeholder__icon" aria-hidden="true">◎</span>
+                <span>Конци и мъниста</span>
+              </div>
+            </div>
+            <p>Конци и дървени мъниста</p>
+          </article>
+          <article class="kit-item">
+            <div class="kit-item__img">
+              <div class="visual-placeholder" role="img" aria-label="Бои или флумастери">
+                <span class="visual-placeholder__icon" aria-hidden="true">🎨</span>
+                <span>Бои / флумастери</span>
+              </div>
+            </div>
+            <p>Бои с четка или флумастери</p>
+          </article>
+          <article class="kit-item">
+            <div class="kit-item__img"><img src="assets/personal.png" alt="Дървена закачалка"></div>
+            <p>Дървена закачалка</p>
+          </article>
+          <article class="kit-item">
+            <div class="kit-item__img"><img src="assets/personalized.png" alt="Персонализирана закачалка с име"></div>
+            <p>Опция за име</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <div class="wave wave--beige" aria-hidden="true">
+      <svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,8 C400,40 800,0 1200,28 1440,12 L1440,48 L0,48 Z"/></svg>
+    </div>
+
+    <!-- Steps -->
+    <section class="flow-section flow-section--steps" id="kak-raboti">
+      <div class="container">
+          <h2 class="title-decor">Как детето създава своята магия</h2>
+          <p class="section__intro">Четири нежни стъпки до цветна градина в стаята</p>
+          <ol class="steps-row">
+            <li class="step">
+              <div class="step__circle"><img src="assets/hero-1.png" alt="Сглобява фигурки"></div>
+              <span class="step__heart" aria-hidden="true">♥</span>
+              <span class="step__num">1</span>
+              <h3>Сглобява</h3>
+              <p>Дървените фигурки оживяват в ръцете на детето.</p>
+            </li>
+            <li class="step">
+              <div class="step__circle"><img src="assets/hero.png" alt="Оцветява фигурки"></div>
+              <span class="step__heart" aria-hidden="true">♥</span>
+              <span class="step__num">2</span>
+              <h3>Оцветява</h3>
+              <p>С бои или флумастери — в любими цветове.</p>
+            </li>
+            <li class="step">
+              <div class="step__circle"><img src="assets/personalized.png" alt="Украсява с мъниста"></div>
+              <span class="step__heart" aria-hidden="true">♥</span>
+              <span class="step__num">3</span>
+              <h3>Украсява</h3>
+              <p>Конци и мъниста добавят нежна магия.</p>
+            </li>
+            <li class="step step--last">
+              <div class="step__circle"><img src="assets/personal.png" alt="Закача в стаята"></div>
+              <span class="step__num">4</span>
+              <h3>Закача</h3>
+              <p>Цветна градина над леглото или бюрото.</p>
+            </li>
+          </ol>
+      </div>
+    </section>
+
+    <div class="wave wave--cream wave--from-beige" aria-hidden="true">
+      <svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,32 C480,4 960,36 1440,20 L1440,48 L0,48 Z"/></svg>
+    </div>
+
+    <!-- Variants -->
+    <section class="flow-section flow-section--variants" id="varianti">
+      <div class="container">
+        <h2 class="title-decor">Избери своя комплект</h2>
+        <p class="section__intro">Три размера магия за всеки повод</p>
+        <div class="variants-row">
+          <article class="variant">
+            <h3>Комплект Мини</h3>
+            <p class="variant__tag">Малка магия</p>
+            <p class="variant__fig">3 фигурки · 29 лв.</p>
+            <p class="variant__desc">1 пеперуда + 2 водни кончета</p>
+            <a href="#configurator" class="btn btn--outline btn--sm" data-preset="mini">Избери</a>
+          </article>
+          <article class="variant variant--best">
+            <span class="variant__badge">Най-подходящ за подарък</span>
+            <h3>Комплект Стандарт</h3>
+            <p class="variant__tag">Цветна магия</p>
+            <p class="variant__fig">5 фигурки · 39 лв.</p>
+            <p class="variant__desc">3 пеперуди + 2 водни кончета</p>
+            <a href="#configurator" class="btn btn--primary btn--sm" data-preset="standard">Избери</a>
+          </article>
+          <article class="variant">
+            <h3>Комплект Макси</h3>
+            <p class="variant__tag">Пълна магия</p>
+            <p class="variant__fig">7 фигурки · 49 лв.</p>
+            <p class="variant__desc">3 пеперуди + 4 водни кончета</p>
+            <a href="#configurator" class="btn btn--outline btn--sm" data-preset="maxi">Избери</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Configurator -->
+    <section class="flow-section flow-section--config" id="configurator">
+      <div class="container">
+        <header class="configurator-header">
+          <h2 class="title-decor">Създай своя комплект</h2>
+          <p class="configurator-header__lead">Избери размер, оцветяване и допълнения — цената се обновява веднага. Готов подарък за 1 юни.</p>
+        </header>
+        <div class="configurator__layout configurator-panel">
+            <form class="config-form" id="configForm" novalidate>
+              <fieldset class="config-group">
+                <legend>Избери комплект</legend>
+                <div class="config-options config-options--stack">
+                  <label class="config-option">
+                    <input type="radio" name="size" value="3" checked>
+                    <span class="config-option__box">
+                      <strong>Комплект Мини</strong>
+                      <span class="config-option__meta">3 фигурки · 1 пеперуда + 2 водни кончета · 29 лв.</span>
+                    </span>
+                  </label>
+                  <label class="config-option">
+                    <input type="radio" name="size" value="5">
+                    <span class="config-option__box">
+                      <strong>Комплект Стандарт</strong>
+                      <span class="config-option__meta">5 фигурки · 3 пеперуди + 2 водни кончета · 39 лв.</span>
+                    </span>
+                  </label>
+                  <label class="config-option">
+                    <input type="radio" name="size" value="7">
+                    <span class="config-option__box">
+                      <strong>Комплект Макси</strong>
+                      <span class="config-option__meta">7 фигурки · 3 пеперуди + 4 водни кончета · 49 лв.</span>
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
+              <fieldset class="config-group">
+                <legend>Оцветяване</legend>
+                <div class="config-options config-options--inline">
+                  <label class="config-option">
+                    <input type="radio" name="coloring" value="paints" checked>
+                    <span class="config-option__box">Бои с четка</span>
+                  </label>
+                  <label class="config-option">
+                    <input type="radio" name="coloring" value="markers">
+                    <span class="config-option__box">Флумастери</span>
+                  </label>
+                </div>
+              </fieldset>
+              <fieldset class="config-group">
+                <legend class="config-group__legend-row">
+                  <span>Име на закачалката</span>
+                  <span class="config-group__addon">+6 лв.</span>
+                  <label class="toggle">
+                    <input type="checkbox" name="personalize" id="personalizeToggle">
+                    <span class="toggle__slider"></span>
+                  </label>
+                </legend>
+                <div class="config-field config-field--collapsed" id="nameField">
+                  <label for="childName">Име на детето</label>
+                  <input type="text" id="childName" name="childName" placeholder="Например: Мая" maxlength="24">
+                </div>
+              </fieldset>
+              <fieldset class="config-group">
+                <legend>Допълнения</legend>
+                <label class="config-check">
+                  <input type="checkbox" name="giftWrap" id="giftWrap">
+                  <span class="config-check__text"><span>Подаръчна опаковка</span><small>+5 лв.</small></span>
+                </label>
+                <label class="config-check">
+                  <input type="checkbox" name="greetingCard" id="greetingCard">
+                  <span class="config-check__text"><span>Картичка с послание</span><small>+3 лв.</small></span>
+                </label>
+                <div class="config-field config-field--collapsed" id="cardMessageField">
+                  <label for="cardMessage">Послание</label>
+                  <textarea id="cardMessage" name="cardMessage" rows="2" maxlength="200"></textarea>
+                </div>
+              </fieldset>
+            </form>
+            <aside class="config-summary config-summary--purchase" id="configSummary" aria-live="polite">
+              <p class="config-summary__label">Твоят избор</p>
+              <h3>Обобщение</h3>
+              <div id="summaryKit"></div>
+              <ul id="summaryList"></ul>
+              <div id="summaryExtras"></div>
+              <p id="summaryName" hidden></p>
+              <p id="summaryCardMsg" hidden></p>
+              <div class="config-summary__breakdown" id="priceBreakdown"></div>
+              <p class="config-summary__total"><span>Общо</span><strong id="totalPrice">29 лв.</strong></p>
+              <div class="config-errors" id="configErrors" role="alert" hidden></div>
+              <button type="button" class="btn btn--primary btn--block btn--lg" id="orderBtn">Поръчай Вълшебни пеперуди</button>
+              <p class="config-summary__note">Ръчно изработено от VeMiDi crafts · с любов за 1 юни</p>
+            </aside>
+          </div>
+      </div>
+    </section>
+
+    <div class="wave wave--june" aria-hidden="true">
+      <svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,20 C320,42 640,6 960,28 1440,14 L1440,48 L0,48 Z"/></svg>
+    </div>
+
+    <!-- 1 June -->
+    <section class="flow-section flow-section--june" id="den-na-deteto">
+      <div class="container june-block">
+        <div class="june-block__copy">
+          <p class="june-block__eyebrow">Подарък за 1 юни</p>
+          <h2 class="section__title">Подарък за 1 юни, който остава като спомен</h2>
+          <p class="june-block__text">На Деня на детето подари нещо, което не остава забравено в кутия. „Вълшебни пеперуди“ се превръща в лично творение, което детето вижда всеки ден в стаята си — цветно напомняне за радостта, въображението и магията на детството.</p>
+          <ul class="june-block__highlights">
+            <li><span aria-hidden="true">✦</span> Не просто играчка</li>
+            <li><span aria-hidden="true">✦</span> Творческо преживяване</li>
+            <li><span aria-hidden="true">✦</span> Украса, направена от детето</li>
+          </ul>
+          <a href="#configurator" class="btn btn--primary">Избери комплект за 1 юни</a>
+        </div>
+        <figure class="june-block__visual">
+          <img src="assets/personal.png" alt="Готова висяща украса в детска стая">
+        </figure>
+      </div>
+    </section>
+
+    <div class="wave wave--beige" aria-hidden="true">
+      <svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,16 C360,44 720,6 1080,30 1440,8 L1440,48 L0,48 Z"/></svg>
+    </div>
+
+    <!-- Gallery — split layout -->
+    <section class="flow-section flow-section--gallery" id="galeria">
+      <div class="container gallery-split">
+        <div class="gallery-split__copy">
+          <h2 class="section__title">Цветна украса, която радва всеки ден</h2>
+          <p>Готовите пеперуди остават в стаята като нежно напомняне за радостта, въображението и магията на детството.</p>
+          <a href="#galeria" class="btn btn--primary">Виж още снимки</a>
+        </div>
+        <div class="gallery-split__photos">
+          <figure class="gallery-photo gallery-photo--1"><img src="assets/hero.png" alt="Стая с пеперуди"></figure>
+          <figure class="gallery-photo gallery-photo--2"><img src="assets/personal.png" alt="Персонализиран комплект"></figure>
+          <figure class="gallery-photo gallery-photo--3"><img src="assets/hero-1.png" alt="Цветни пеперуди"></figure>
+        </div>
+      </div>
+    </section>
+
+    <div class="wave wave--cream wave--from-beige" aria-hidden="true">
+      <svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,28 C500,0 1000,40 1440,24 L1440,48 L0,48 Z"/></svg>
+    </div>
+
+    <!-- Personalization -->
+    <section class="flow-section flow-section--personalize" id="personalizacia">
+      <div class="container personalize-split">
+          <figure class="personalize__photo">
+            <img src="assets/personalized.png" alt="Закачалка с име">
+          </figure>
+          <div class="personalize__copy">
+            <h2 class="section__title">Името превръща подаръка в личен спомен</h2>
+            <p>Дървена закачалка с името на детето — нежно допълнение, което прави подаръка незабравим.</p>
+            <ul class="personalize__perks">
+              <li><span aria-hidden="true">⌁</span> Гравирано върху дърво</li>
+              <li><span aria-hidden="true">♥</span> Остава години наред</li>
+              <li><span aria-hidden="true">🎁</span> Идеално за подарък</li>
+            </ul>
+            <a href="#configurator" class="btn btn--primary">Добави име на закачалката</a>
+          </div>
+      </div>
+    </section>
+
+    <div class="wave wave--cream" aria-hidden="true">
+      <svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,12 C400,38 800,4 1200,26 1440,18 L1440,48 L0,48 Z"/></svg>
+    </div>
+
+    <!-- Testimonials -->
+    <section class="flow-section flow-section--reviews" id="otzivi">
+      <div class="container">
+        <h2 class="title-decor">Какво споделят родителите</h2>
+        <div class="reviews-row">
+          <blockquote class="review">
+            <div class="review__stars" aria-label="5 звезди">★★★★★</div>
+            <p>„Дъщеря ми беше горда, че сама е направила пеперудите. Сега висят над бюрото ѝ всеки ден.“</p>
+            <footer>
+              <span class="review__avatar" aria-hidden="true">М</span>
+              <cite>Мама на Мая</cite>
+            </footer>
+          </blockquote>
+          <blockquote class="review">
+            <div class="review__stars">★★★★★</div>
+            <p>„Перфектен подарък за 1 юни — не е поредната играчка в кутия, а спомен, който остава.“</p>
+            <footer>
+              <span class="review__avatar">Е</span>
+              <cite>Елена, София</cite>
+            </footer>
+          </blockquote>
+          <blockquote class="review">
+            <div class="review__stars">★★★★★</div>
+            <p>„Нежни материали, красиво поднесено и спокойно творческо време без екран.“</p>
+            <footer>
+              <span class="review__avatar">В</span>
+              <cite>Виктория</cite>
+            </footer>
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="flow-section flow-section--faq" id="faq">
+      <div class="container container--narrow">
+        <h2 class="title-decor">Често задавани въпроси</h2>
+        <div class="faq__list">
+          <details class="faq-item"><summary>За каква възраст е подходящ?</summary><p>Около 4–10 години, с помощ от възрастен.</p></details>
+          <details class="faq-item"><summary>Колко фигурки има?</summary><p>Мини: 3 · Стандарт: 5 · Макси: 7.</p></details>
+          <details class="faq-item"><summary>Може ли с име?</summary><p>Да, в конфигуратора (+6 лв.).</p></details>
+          <details class="faq-item"><summary>Има ли картичка и опаковка?</summary><p>Да — подаръчна опаковка (+5 лв.) и картичка с послание (+3 лв.) в конфигуратора.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA — footer band -->
+    <section class="cta-footer" id="porachai">
+      <div class="cta-footer__wave" aria-hidden="true">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,30 C360,5 720,45 1080,15 C1260,35 1440,10 L1440,60 L0,60 Z" fill="currentColor"/></svg>
+      </div>
+      <div class="container cta-footer__inner">
+        <span class="cta-footer__icon" aria-hidden="true">🎁</span>
+        <div class="cta-footer__text">
+          <h2>Готови ли сте да създадете магия?</h2>
+          <p>Избери комплект „Вълшебни пеперуди“ и подари спомен, който остава в стаята.</p>
+        </div>
+        <a href="#configurator" class="btn btn--primary btn--lg">Избери своя комплект</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <img src="assets/logo.png" alt="VeMiDi crafts" width="90">
+      <p class="site-footer__tagline">Ръчно изработени с любов</p>
+      <p class="site-footer__copy">&copy; <span id="year"></span> VeMiDi crafts</p>
+    </div>
+  </footer>
+
+  <div class="modal" id="orderModal" role="dialog" aria-hidden="true">
+    <div class="modal__backdrop" data-close-modal></div>
+    <div class="modal__content">
+      <button class="modal__close" data-close-modal aria-label="Затвори">&times;</button>
+      <h3 id="modalTitle">Благодарим!</h3>
+      <p id="modalMessage">Твоят комплект „Вълшебни пеперуди“ е готов за поръчка.</p>
+      <p class="modal__accent">магията започва тук</p>
+      <p class="modal__total" id="modalTotal"></p>
+      <ul class="modal__summary" id="modalSummary"></ul>
+      <button class="btn btn--primary btn--block" data-close-modal>Затвори</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

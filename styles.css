@@ -65,6 +65,8 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
 }
 .title-decor--light::before,
 .title-decor--light::after { filter: brightness(0.9); }
+.title-decor--plain::before,
+.title-decor--plain::after { display: none; }
 
 .section__title {
   font-family: var(--font-heading);
@@ -360,6 +362,9 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
   position: relative;
   min-height: inherit;
   margin-left: clamp(260px, 34vw, 420px);
+  margin-right: 0;
+  width: calc(100% - clamp(260px, 34vw, 420px));
+  max-width: none;
   overflow: hidden;
   z-index: 1;
 }
@@ -394,22 +399,28 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
 .hero__photo {
   position: absolute;
   inset: 0;
-  margin: 0;
+  left: auto;
+  right: 0;
   width: 100%;
   height: 100%;
+  margin: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: var(--bg);
+  justify-content: flex-end;
+  background: transparent;
   clip-path: url(#hero-image-curve);
   -webkit-clip-path: url(#hero-image-curve);
 }
 .hero__photo img {
-  width: 100%;
+  display: block;
+  width: auto;
+  max-width: 100%;
   height: 100%;
   min-height: clamp(520px, 60vh, 700px);
+  margin-left: auto;
+  margin-right: 0;
   object-fit: contain;
-  object-position: center center;
+  object-position: right center;
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent 0%,
@@ -449,9 +460,6 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
   grid-template-columns: repeat(5, 1fr);
   gap: 1rem;
 }
-.kit-row--six {
-  grid-template-columns: repeat(6, 1fr);
-}
 .kit-item {
   background: var(--white);
   border-radius: var(--radius);
@@ -474,6 +482,13 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
   font-size: 0.82rem;
   font-weight: 500;
   line-height: 1.35;
+}
+.kit-item__sub {
+  font-size: 0.72rem;
+  font-weight: 400;
+  opacity: 0.75;
+  margin-top: 0.2rem;
+  font-family: inherit;
 }
 
 /* STEPS — on beige band */
@@ -1041,7 +1056,13 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
   .hero__visual {
     grid-row: 1;
     margin-left: 0;
+    width: 100%;
+    justify-self: stretch;
     min-height: clamp(220px, 48vw, 300px);
+  }
+  .hero__photo {
+    left: 0;
+    justify-content: center;
   }
   .hero__visual::after {
     background: linear-gradient(
@@ -1057,6 +1078,8 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
     border-radius: 0 0 20px 20px;
   }
   .hero__photo img {
+    width: 100%;
+    margin-left: 0;
     min-height: clamp(200px, 48vw, 280px);
     object-fit: contain;
     object-position: center center;
@@ -1081,8 +1104,7 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
     flex: unset;
     min-width: 0;
   }
-  .kit-row,
-  .kit-row--six { grid-template-columns: repeat(3, 1fr); }
+  .kit-row { grid-template-columns: repeat(3, 1fr); }
   .june-block { grid-template-columns: 1fr; }
   .june-block__visual { order: -1; max-width: 360px; margin-inline: auto; transform: none; }
   .configurator-panel { padding: 1.25rem; }
@@ -1126,8 +1148,7 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
     white-space: normal;
   }
   .header__nav.is-open { transform: none; opacity: 1; visibility: visible; }
-  .kit-row,
-  .kit-row--six { grid-template-columns: repeat(2, 1fr); }
+  .kit-row { grid-template-columns: repeat(2, 1fr); }
   .variants-row { grid-template-columns: 1fr; max-width: 340px; margin-inline: auto; }
   .variant--best { transform: none; }
   .reviews-row { grid-template-columns: 1fr; max-width: 400px; margin-inline: auto; }
@@ -1151,6 +1172,5 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
   .hero__actions .btn { width: 100%; }
   .hero__features { grid-template-columns: repeat(2, 1fr); }
   .steps-row { grid-template-columns: 1fr; max-width: 260px; margin-inline: auto; }
-  .kit-row--six { grid-template-columns: repeat(2, 1fr); }
   .june-block__highlights { flex-direction: column; gap: 0.5rem; }
 }

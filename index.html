@@ -14,7 +14,17 @@
   <header class="header" id="header">
     <div class="container header__inner">
       <a href="#" class="header__logo" aria-label="VeMiDi crafts">
-        <img src="assets/logo.png" alt="VeMiDi crafts" width="120" height="auto">
+        <span class="header__logo-mark" aria-hidden="true">
+          <img src="assets/logo.png" alt="">
+        </span>
+        <span class="header__logo-wordmark">
+          <span class="header__logo-brand">VeMiDi</span>
+          <span class="header__logo-sub">
+            <span class="header__logo-sub-line" aria-hidden="true"></span>
+            crafts
+            <span class="header__logo-sub-line" aria-hidden="true"></span>
+          </span>
+        </span>
       </a>
       <button class="header__toggle" id="navToggle" aria-label="Меню" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -109,11 +119,11 @@
         <p class="section__intro">Всичко необходимо за творческа магия — в една нежна кутия</p>
         <div class="kit-row kit-row--six">
           <article class="kit-item">
-            <div class="kit-item__img"><img src="assets/set-3.png" alt="Дървени фигурки"></div>
+            <div class="kit-item__img"><img src="assets/elements.png" alt="Дървени фигурки"></div>
             <p>Дървени фигурки</p>
           </article>
           <article class="kit-item">
-            <div class="kit-item__img"><img src="assets/manista.png" alt="Конци и дървени мъниста"></div>
+            <div class="kit-item__img"><img src="assets/set-3.png" alt="Конци и дървени мъниста"></div>
             <p>Конци и дървени мъниста</p>
           </article>
           <article class="kit-item">
@@ -125,8 +135,8 @@
             <p>Дървена закачалка</p>
           </article>
           <article class="kit-item">
-            <div class="kit-item__img"><img src="assets/personalized.png" alt="Опция за име"></div>
-            <p>Опция за име</p>
+            <div class="kit-item__img"><img src="assets/pack.png" alt="Подаръчна кутия"></div>
+            <p>Подаръчна кутия</p>
           </article>
           <article class="kit-item">
             <div class="kit-item__img"><img src="assets/broshure.png" alt="Лесни инструкции"></div>
@@ -427,7 +437,7 @@
 
   <footer class="site-footer">
     <div class="container site-footer__inner">
-      <img src="assets/logo.png" alt="VeMiDi crafts" width="90">
+      <img class="site-footer__logo" src="assets/logo.png" alt="VeMiDi crafts">
       <p class="site-footer__tagline">Ръчно изработени с любов</p>
       <p class="site-footer__copy">&copy; <span id="year"></span> VeMiDi crafts</p>
     </div>

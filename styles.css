@@ -283,10 +283,7 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
 }
 /* Hero kicker — handmade stamp label */
 .hero-kicker {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
+  display: inline-block;
   margin-bottom: 0.65rem;
   max-width: 100%;
 }
@@ -328,22 +325,6 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
   font-size: clamp(0.64rem, 1.15vw, 0.74rem);
   letter-spacing: 0.2em;
   color: #8f7a66;
-}
-.hero-kicker__tail {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding-left: 0.35rem;
-}
-.hero-kicker__line {
-  display: block;
-  width: 2rem;
-  height: 1px;
-  background: linear-gradient(90deg, var(--accent-beige), rgba(168, 191, 163, 0.4));
-}
-.hero-kicker__butterfly {
-  color: var(--accent-green);
-  opacity: 0.8;
 }
 
 /* Local visual placeholders */
@@ -1095,14 +1076,15 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
   box-shadow: var(--shadow-sm);
   padding: 1.35rem 1.2rem;
 }
-.review__stars { color: var(--accent-beige); font-size: 0.95rem; letter-spacing: 2px; margin-bottom: 0.65rem; }
+.review__stars { color: var(--accent-green); font-size: 0.95rem; letter-spacing: 2px; margin-bottom: 0.65rem; }
 .review p { font-size: 0.9rem; font-style: italic; line-height: 1.55; margin-bottom: 1rem; }
 .review footer { display: flex; align-items: center; gap: 0.6rem; }
 .review__avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--bg-soft);
+  background: var(--accent-green);
+  color: var(--text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1121,13 +1103,31 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
   box-shadow: var(--shadow-sm);
 }
 .faq-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   padding: 1rem 1.2rem;
   font-family: var(--font-heading);
   font-weight: 500;
   cursor: pointer;
   list-style: none;
 }
-.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::-webkit-details-marker,
+.faq-item summary::marker { display: none; }
+.faq-item summary::after {
+  content: '+';
+  flex-shrink: 0;
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--green-muted);
+  transition: transform 0.2s ease;
+}
+.faq-item[open] summary::after {
+  content: '−';
+}
 .faq-item p { padding: 0 1.2rem 1rem; font-size: 0.92rem; opacity: 0.9; }
 
 /* CTA FOOTER */
@@ -1177,6 +1177,55 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
 }
 .site-footer__tagline { font-family: var(--font-accent); font-size: 1.3rem; color: var(--green-muted); }
 .site-footer__copy { font-size: 0.8rem; opacity: 0.7; margin-top: 0.2rem; }
+
+/* Back to top */
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 90;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #5a4636;
+  color: #f5f1eb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 18px rgba(90, 70, 54, 0.22);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease,
+    transform 0.3s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.back-to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.back-to-top:hover {
+  background: #a8bfa3;
+  color: #5a4636;
+  box-shadow: 0 6px 22px rgba(90, 70, 54, 0.18);
+}
+.back-to-top:focus-visible {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 3px;
+}
+.back-to-top__icon {
+  display: block;
+  flex-shrink: 0;
+}
 
 /* Modal */
 .modal {
@@ -1235,7 +1284,6 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
     margin-bottom: 0.75rem;
   }
   .hero-kicker { margin-bottom: 0.45rem; }
-  .hero-kicker__tail { display: none; }
   .sales-nudge { font-size: 0.78rem; margin-bottom: 0.6rem; }
   .hero__actions { margin-bottom: 0.65rem; }
   .hero__visual {
@@ -1338,6 +1386,16 @@ h1, h2, h3, p, li, span, label, summary { overflow-wrap: break-word; }
 }
 
 @media (max-width: 768px) {
+  .back-to-top {
+    bottom: 18px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+  }
+  .back-to-top__icon {
+    width: 18px;
+    height: 18px;
+  }
   .header__toggle { display: flex; }
   .header__cta--desktop { display: none; }
   .header__cta--mobile { display: inline-flex; margin-top: 0.5rem; }

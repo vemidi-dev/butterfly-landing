@@ -257,4 +257,20 @@
 
   setFieldExpanded(nameField, false);
   updateSummary();
+
+  const backToTop = document.getElementById('backToTop');
+  const SCROLL_SHOW_BACK_TO_TOP = 300;
+
+  function updateBackToTop() {
+    if (!backToTop) return;
+    backToTop.classList.toggle('is-visible', window.scrollY > SCROLL_SHOW_BACK_TO_TOP);
+  }
+
+  if (backToTop) {
+    window.addEventListener('scroll', updateBackToTop, { passive: true });
+    updateBackToTop();
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 })();

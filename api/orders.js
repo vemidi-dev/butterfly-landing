@@ -1,8 +1,10 @@
 const PRODUCT_NAME = 'Вълшебни пеперуди';
 const CURRENCY = 'EUR';
+const ORDER_EMAIL_SUBJECT = 'Нова поръчка: Вълшебни пеперуди';
 
 const COURIER_LABELS = { econt: 'Еконт', speedy: 'Спиди' };
 const DELIVERY_LABELS = { office: 'До офис', address: 'До адрес' };
+const COLORING_LABELS = { paints: 'Бои с четка', markers: 'Флумастери' };
 
 function json(res, status, body) {
   res.status(status).setHeader('Content-Type', 'application/json');
@@ -157,55 +159,100 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+function formatOrderDate(iso) {
+  const date = iso ? new Date(iso) : new Date();
+  if (Number.isNaN(date.getTime())) return String(iso || '');
+  return new Intl.DateTimeFormat('bg-BG', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Europe/Sofia',
+  }).format(date);
+}
+
+function formatOrderPrice(amount, currency) {
+  const value = Number(amount);
+  if (!Number.isFinite(value)) return '—';
+  const cur = currency || CURRENCY;
+  if (Number.isInteger(value)) return `${value} ${cur}`;
+  return `${value.toFixed(2).replace('.', ',')} ${cur}`;
+}
+
+function buildOrderEmailContent(order, body) {
+  const delivery = body.delivery || {};
+  const orderData = body.order || {};
+  const customer = body.customer || {};
+
+  const courierLabel = COURIER_LABELS[delivery.courier] || delivery.courier || '—';
+  const deliveryLabel = DELIVERY_LABELS[delivery.type] || delivery.type || '—';
+  const coloringLabel =
+    orderData.coloringLabel ||
+    COLORING_LABELS[orderData.coloring] ||
+    orderData.coloring ||
+    '—';
+  const personalize = Boolean(orderData.personalize);
+  const childName = String(orderData.childName || order.child_name || '').trim();
+  const orderDate = formatOrderDate(order.created_at || body.created_at);
+  const totalFormatted = formatOrderPrice(order.total_price, order.currency);
+  const note = String(body.note || order.note || '').trim();
+
+  const rows = [
+    ['ID на поръчката', order.id],
+    ['Дата', orderDate],
+    ['Име на клиента', customer.name || order.customer_name],
+    ['Телефон', customer.phone || order.customer_phone],
+    ['Имейл', customer.email || order.customer_email || '—'],
+    ['Избран комплект', orderData.kitName || order.kit_name],
+    ['Брой фигурки', orderData.kitFigures || '—'],
+    ['Оцветяване', coloringLabel],
+    ['Персонализация', personalize ? 'Да' : 'Не'],
+    ['Име на детето', personalize && childName ? childName : '—'],
+    ['Куриер', courierLabel],
+    ['Тип доставка', deliveryLabel],
+    ['Град', delivery.city || order.city],
+    ['Офис/адрес', delivery.details || order.delivery_details],
+    ['Обща цена', totalFormatted],
+    ['Бележка', note || '—'],
+  ];
+
+  const htmlRows = rows
+    .map(
+      ([label, value]) =>
+        `<tr><td style="padding:6px 12px 6px 0;font-weight:600;color:#5a4636;vertical-align:top;">${escapeHtml(label)}</td><td style="padding:6px 0;color:#3d3028;">${escapeHtml(value)}</td></tr>`
+    )
+    .join('');
+
+  const textRows = rows.map(([label, value]) => `${label}: ${value}`).join('\n');
+
+  const html = `
+    <div style="font-family:Segoe UI,sans-serif;max-width:560px;color:#3d3028;">
+      <h2 style="font-family:Georgia,serif;color:#5a4636;margin:0 0 16px;">${escapeHtml(ORDER_EMAIL_SUBJECT)}</h2>
+      <table style="border-collapse:collapse;width:100%;">${htmlRows}</table>
+      <p style="margin:20px 0 0;font-size:13px;color:#7a6654;">Плащане: наложен платеж</p>
+    </div>
+  `;
+
+  const text = `${ORDER_EMAIL_SUBJECT}\n\n${textRows}\n\nПлащане: наложен платеж`;
+
+  return { html, text };
+}
+
 async function sendOrderEmail(order, body) {
   const resendKey = getEnv('RESEND_API_KEY');
   const notifyEmail = getEnv('ORDER_NOTIFY_EMAIL');
   const fromEmail = getEnv('FROM_EMAIL');
 
   if (!resendKey || !notifyEmail || !fromEmail) {
-    console.warn('Resend email skipped: missing env configuration.');
-    return;
+    const missing = [];
+    if (!resendKey) missing.push('RESEND_API_KEY');
+    if (!notifyEmail) missing.push('ORDER_NOTIFY_EMAIL');
+    if (!fromEmail) missing.push('FROM_EMAIL');
+    console.warn('[orders] Resend notification skipped — missing env:', missing.join(', '), {
+      orderId: order.id,
+    });
+    return { sent: false, skipped: true, reason: 'missing_env' };
   }
 
-  const delivery = body.delivery || {};
-  const orderData = body.order || {};
-  const customer = body.customer || {};
-
-  const courierLabel = COURIER_LABELS[delivery.courier] || delivery.courier;
-  const deliveryLabel = DELIVERY_LABELS[delivery.type] || delivery.type;
-  const personalizeText = orderData.personalize
-    ? `Да${orderData.childName ? ` — ${orderData.childName}` : ''}`
-    : 'Не';
-
-  const html = `
-    <h2>Нова поръчка — ${escapeHtml(PRODUCT_NAME)}</h2>
-    <p><strong>№ поръчка:</strong> ${escapeHtml(order.id)}</p>
-    <p><strong>Дата:</strong> ${escapeHtml(order.created_at || new Date().toISOString())}</p>
-    <hr>
-    <h3>Клиент</h3>
-    <ul>
-      <li><strong>Име:</strong> ${escapeHtml(customer.name)}</li>
-      <li><strong>Телефон:</strong> ${escapeHtml(customer.phone)}</li>
-      <li><strong>Имейл:</strong> ${escapeHtml(customer.email || '—')}</li>
-    </ul>
-    <h3>Комплект</h3>
-    <ul>
-      <li><strong>Комплект:</strong> ${escapeHtml(orderData.kitName)}</li>
-      <li><strong>Фигурки:</strong> ${escapeHtml(orderData.kitFigures)}</li>
-      <li><strong>Оцветяване:</strong> ${escapeHtml(orderData.coloringLabel)}</li>
-      <li><strong>Персонализация:</strong> ${escapeHtml(personalizeText)}</li>
-    </ul>
-    <h3>Доставка</h3>
-    <ul>
-      <li><strong>Куриер:</strong> ${escapeHtml(courierLabel)}</li>
-      <li><strong>Тип:</strong> ${escapeHtml(deliveryLabel)}</li>
-      <li><strong>Град:</strong> ${escapeHtml(delivery.city)}</li>
-      <li><strong>Офис/адрес:</strong> ${escapeHtml(delivery.details)}</li>
-    </ul>
-    <p><strong>Обща цена:</strong> ${escapeHtml(order.total_price)} ${escapeHtml(order.currency || CURRENCY)}</p>
-    <p><strong>Плащане:</strong> Наложен платеж</p>
-    ${body.note ? `<p><strong>Бележка:</strong> ${escapeHtml(body.note)}</p>` : ''}
-  `;
+  const { html, text } = buildOrderEmailContent(order, body);
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -216,15 +263,26 @@ async function sendOrderEmail(order, body) {
     body: JSON.stringify({
       from: fromEmail,
       to: [notifyEmail],
-      subject: `Нова поръчка #${order.id.slice(0, 8)} — ${PRODUCT_NAME}`,
+      subject: ORDER_EMAIL_SUBJECT,
       html,
+      text,
     }),
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Resend failed: ${response.status} ${text}`);
+    const responseText = await response.text();
+    const err = new Error(`Resend failed: ${response.status} ${responseText}`);
+    err.status = response.status;
+    throw err;
   }
+
+  const result = await response.json().catch(() => ({}));
+  console.info('[orders] Resend notification sent', {
+    orderId: order.id,
+    resendId: result.id || null,
+    to: notifyEmail,
+  });
+  return { sent: true, resendId: result.id || null };
 }
 
 module.exports = async function handler(req, res) {
@@ -261,7 +319,11 @@ module.exports = async function handler(req, res) {
     try {
       await sendOrderEmail(saved, body);
     } catch (emailErr) {
-      console.error('Order email failed:', emailErr);
+      console.error('[orders] Resend notification failed — order saved in Supabase', {
+        orderId: saved.id,
+        message: emailErr.message,
+        status: emailErr.status || null,
+      });
     }
 
     return json(res, 201, {

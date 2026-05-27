@@ -460,14 +460,28 @@
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json().catch(() => ({}));
+      const contentType = response.headers.get('content-type') || '';
+      let data = {};
+
+      if (contentType.includes('application/json')) {
+        data = await response.json().catch(() => ({}));
+      } else if (!response.ok) {
+        const fallback =
+          response.status === 404
+            ? 'API не е намерен. Отвори сайта през production URL на Vercel (не локален файл).'
+            : `Сървърът върна грешка (${response.status}). Опитай отново след малко.`;
+        showCheckoutErrors([fallback]);
+        return;
+      }
 
       if (!response.ok || !data.ok) {
         const serverErrors = Array.isArray(data.errors)
           ? data.errors
           : data.error
             ? [data.error]
-            : [CHECKOUT_ERROR_MESSAGE];
+            : response.status
+              ? [`Грешка от сървъра (${response.status}). ${CHECKOUT_ERROR_MESSAGE}`]
+              : [CHECKOUT_ERROR_MESSAGE];
         showCheckoutErrors(serverErrors);
         return;
       }
@@ -477,8 +491,11 @@
       checkoutForm.querySelector('input[name="courier"][value="econt"]').checked = true;
       checkoutForm.querySelector('input[name="deliveryType"][value="office"]').checked = true;
       updateDeliveryDetailsLabel();
-    } catch {
-      showCheckoutErrors([CHECKOUT_ERROR_MESSAGE]);
+    } catch (err) {
+      console.error('Order submit failed:', err);
+      showCheckoutErrors([
+        'Не успяхме да се свържем със сървъра. Провери интернет връзката и че ползваш live Vercel URL.',
+      ]);
     } finally {
       checkoutSubmitBtn.disabled = false;
       checkoutSubmitBtn.textContent = 'Потвърди поръчката';

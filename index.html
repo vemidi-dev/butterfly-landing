@@ -33,7 +33,7 @@
         <a href="#za-komplekta">За комплекта</a>
         <a href="#sadarzhanie">Съдържание</a>
         <a href="#kak-raboti">Как работи</a>
-        <a href="#varianti">Варианти</a>
+        <a href="#configurator">Поръчка</a>
         <a href="#personalizacia">Персонализация</a>
         <a href="#galeria">Галерия</a>
         <a href="#configurator" class="btn btn--primary header__cta header__cta--mobile">
@@ -63,6 +63,10 @@
   <main class="page">
     <!-- Hero -->
     <section class="hero" id="za-komplekta">
+      <div class="hero__backdrop" aria-hidden="true">
+        <img src="assets/hero-3.png" alt="">
+      </div>
+      <div class="hero__leaves" aria-hidden="true"></div>
       <svg class="hero__defs" aria-hidden="true" width="0" height="0">
         <defs>
           <clipPath id="hero-image-curve" clipPathUnits="objectBoundingBox">
@@ -86,7 +90,8 @@
             <span class="hero__script-line">детски ръчички</span>
           </p>
           <p class="hero__text">
-            Подари за 1 юни не просто играчка, а преживяване. Детето сглобява, оцветява и оживява дървени пеперуди и водни кончета — после те политат в стаята като цветна градина от детството.
+            Всяка пеперуда започва като малко парче дърво…<br />
+            и оживява като цветна магия в детската стая.
           </p>
           <div class="hero__panel">
             <ol class="hero__steps" aria-label="Как работи комплекта">
@@ -164,7 +169,8 @@
         </div>
         <div class="hero__visual">
           <figure class="hero__photo">
-            <img src="assets/hero-3.png" alt="Вълшебни пеперуди — творчески комплект в детска стая">
+            <img class="hero__photo-blur" src="assets/hero-3.png" alt="" aria-hidden="true">
+            <img class="hero__photo-main" src="assets/hero-3.png" alt="Вълшебни пеперуди — творчески комплект в детска стая">
           </figure>
           <div class="hero__float">
             <div class="hero-kicker__stamp hero__memo-stamp">
@@ -225,35 +231,96 @@
     </section>
 
     <!-- Steps -->
-    <section class="flow-section flow-section--steps" id="kak-raboti">
+    <section class="flow-section flow-section--steps" id="kak-raboti" aria-labelledby="steps-heading">
+      <div class="steps-section__bg" aria-hidden="true">
+        <span class="steps-section__heart steps-section__heart--1">♥</span>
+        <span class="steps-section__heart steps-section__heart--2">♥</span>
+        <span class="steps-section__butterfly steps-section__butterfly--1"></span>
+        <span class="steps-section__butterfly steps-section__butterfly--2"></span>
+        <span class="steps-section__spark steps-section__spark--1"></span>
+        <span class="steps-section__spark steps-section__spark--2"></span>
+        <span class="steps-section__spark steps-section__spark--3"></span>
+      </div>
       <div class="container">
-          <h2 class="steps-heading">
-            <span class="steps-heading__icon steps-heading__icon--heart" aria-hidden="true">♥</span>
+        <header class="steps-header">
+          <h2 class="steps-header__title" id="steps-heading">
+            <span class="steps-header__deco steps-header__deco--left" aria-hidden="true">♥</span>
             Как детето създава своята магия
-            <span class="steps-heading__icon steps-heading__icon--heart" aria-hidden="true">♥</span>
+            <span class="steps-header__deco steps-header__deco--right" aria-hidden="true">♥</span>
           </h2>
-          <ol class="steps-row">
-            <li class="step">
-              <div class="step__circle"><img src="assets/sglovqva-1.png" alt="Сглобява дървени фигурки"></div>
-              <span class="step__badge">1</span>
-              <p class="step__text">Сглобява фигурките лесно и забавно</p>
-            </li>
-            <li class="step">
-              <div class="step__circle"><img src="assets/ocvetqva-1.png" alt="Оцветява пеперуди"></div>
-              <span class="step__badge">2</span>
-              <p class="step__text">Оцветява по свой вкус и вдъхновение</p>
-            </li>
-            <li class="step">
-              <div class="step__circle"><img src="assets/manista.png" alt="Нанижава мъниста"></div>
-              <span class="step__badge">3</span>
-              <p class="step__text">Добавя цветни дървени мъниста</p>
-            </li>
-            <li class="step">
-              <div class="step__circle"><img src="assets/Hero-2.png" alt="Готова украса в стаята"></div>
-              <span class="step__badge">4</span>
-              <p class="step__text">Готово! Магията оживява в стаята ✨</p>
-            </li>
-          </ol>
+          <p class="steps-header__intro">Лесно, забавно и красиво преживяване стъпка по стъпка</p>
+        </header>
+
+        <ol class="steps-journey">
+          <li class="magic-step magic-step--1">
+            <article class="magic-step__card">
+              <div class="magic-step__visual">
+                <div class="magic-step__photo">
+                  <img src="assets/sglovqva-1.png" alt="Дете сглобява дървени фигурки" width="200" height="200" loading="lazy">
+                </div>
+                <span class="magic-step__badge" aria-hidden="true">1</span>
+              </div>
+              <div class="magic-step__body">
+                <h3 class="magic-step__title">
+                  <svg class="magic-step__title-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                  Сглобява
+                </h3>
+                <p class="magic-step__text">Сглобява фигурките лесно и забавно.</p>
+              </div>
+            </article>
+          </li>
+          <li class="magic-step magic-step--2">
+            <article class="magic-step__card">
+              <div class="magic-step__visual">
+                <div class="magic-step__photo">
+                  <img src="assets/ocvetqva-1.png" alt="Дете оцветява пеперуди" width="200" height="200" loading="lazy">
+                </div>
+                <span class="magic-step__badge" aria-hidden="true">2</span>
+              </div>
+              <div class="magic-step__body">
+                <h3 class="magic-step__title">
+                  <svg class="magic-step__title-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 19l-1.5-1.5M12 5l-1.5 1.5M5 12l1.5-1.5M19 12l-1.5 1.5"/><circle cx="12" cy="12" r="3"/></svg>
+                  Оцветява
+                </h3>
+                <p class="magic-step__text">Оцветява по свой вкус и вдъхновение.</p>
+              </div>
+            </article>
+          </li>
+          <li class="magic-step magic-step--3">
+            <article class="magic-step__card">
+              <div class="magic-step__visual">
+                <div class="magic-step__photo">
+                  <img src="assets/manista.png" alt="Дете нанизва цветни мъниста" width="200" height="200" loading="lazy">
+                </div>
+                <span class="magic-step__badge" aria-hidden="true">3</span>
+              </div>
+              <div class="magic-step__body">
+                <h3 class="magic-step__title">
+                  <svg class="magic-step__title-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="14" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="16" cy="14" r="2"/></svg>
+                  Добавя мъниста
+                </h3>
+                <p class="magic-step__text">Добавя цветни дървени мъниста.</p>
+              </div>
+            </article>
+          </li>
+          <li class="magic-step magic-step--4">
+            <article class="magic-step__card">
+              <div class="magic-step__visual">
+                <div class="magic-step__photo">
+                  <img src="assets/Hero-2.png" alt="Готова висяща украса в детска стая" width="200" height="200" loading="lazy">
+                </div>
+                <span class="magic-step__badge" aria-hidden="true">4</span>
+              </div>
+              <div class="magic-step__body">
+                <h3 class="magic-step__title">
+                  <svg class="magic-step__title-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m12 3 1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/></svg>
+                  Готово!
+                </h3>
+                <p class="magic-step__text">Магията оживява в стаята и радва всеки ден.</p>
+              </div>
+            </article>
+          </li>
+        </ol>
       </div>
     </section>
 
@@ -261,106 +328,134 @@
       <svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,32 C480,4 960,36 1440,20 L1440,48 L0,48 Z"/></svg>
     </div>
 
-    <!-- Variants -->
-    <section class="flow-section flow-section--variants" id="varianti">
-      <div class="container">
-        <h2 class="title-decor title-decor--plain">Избери своя комплект</h2>
-        <p class="section__intro">Три размера магия за всеки повод</p>
-        <p class="sales-nudge sales-nudge--center">Не просто играчка, а спомен, създаден от детето.</p>
-        <div class="variants-row">
-          <article class="variant">
-            <h3>Комплект Мини</h3>
-            <p class="variant__tag">Малка магия</p>
-            <p class="variant__fig">3 фигурки · 13,50 €</p>
-            <p class="variant__desc">1 пеперуда + 2 водни кончета</p>
-            <a href="#configurator" class="btn btn--outline btn--sm" data-preset="mini">Избери</a>
-          </article>
-          <article class="variant variant--best">
-            <span class="variant__badge">най-поръчван</span>
-            <h3>Комплект Стандарт</h3>
-            <p class="variant__tag">Цветна магия</p>
-            <p class="variant__fig">5 фигурки · 18 €</p>
-            <p class="variant__desc">3 пеперуди + 2 водни кончета</p>
-            <a href="#configurator" class="btn btn--primary btn--sm" data-preset="standard">Избери</a>
-          </article>
-          <article class="variant">
-            <h3>Комплект Макси</h3>
-            <p class="variant__tag">Пълна магия</p>
-            <p class="variant__fig">7 фигурки · 24 €</p>
-            <p class="variant__desc">3 пеперуди + 4 водни кончета</p>
-            <a href="#configurator" class="btn btn--outline btn--sm" data-preset="maxi">Избери</a>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- Configurator -->
-    <section class="flow-section flow-section--config" id="configurator">
+    <!-- Purchase / Configurator -->
+    <section class="flow-section flow-section--config flow-section--purchase" id="configurator" aria-labelledby="configurator-heading">
       <div class="container">
         <header class="configurator-header">
-          <h2 class="title-decor title-decor--plain">Създай своя комплект</h2>
-          <p class="configurator-header__lead">Избери размер, оцветяване и допълнения — цената се обновява веднага.</p>
-          <p class="sales-nudge sales-nudge--center">Избери до 1 юни и подари готово творческо преживяване.</p>
+          <h2 class="configurator-header__title" id="configurator-heading">Създай своя комплект</h2>
+          <p class="configurator-header__lead">Избери размер, оцветяване и допълнения на едно място — цената се обновява веднага.</p>
+          <p class="sales-nudge sales-nudge--center">Не просто играчка, а спомен, създаден от детето.</p>
         </header>
-        <div class="configurator__layout configurator-panel">
+
+        <div class="configurator__layout">
+          <div class="configurator-panel">
             <form class="config-form" id="configForm" novalidate>
-              <fieldset class="config-group">
-                <legend>Избери комплект</legend>
-                <div class="config-options config-options--stack">
-                  <label class="config-option">
-                    <input type="radio" name="size" value="3" checked>
-                    <span class="config-option__box">
-                      <strong>Комплект Мини</strong>
-                      <span class="config-option__meta">3 фигурки · 1 пеперуда + 2 водни кончета · 13,50 €</span>
-                    </span>
-                  </label>
-                  <label class="config-option">
-                    <input type="radio" name="size" value="5">
-                    <span class="config-option__box">
-                      <strong>Комплект Стандарт</strong>
-                      <span class="config-option__meta">5 фигурки · 3 пеперуди + 2 водни кончета · 18 €</span>
-                    </span>
-                  </label>
-                  <label class="config-option">
-                    <input type="radio" name="size" value="7">
-                    <span class="config-option__box">
-                      <strong>Комплект Макси</strong>
-                      <span class="config-option__meta">7 фигурки · 3 пеперуди + 4 водни кончета · 24 €</span>
-                    </span>
-                  </label>
-                </div>
-              </fieldset>
-              <fieldset class="config-group">
-                <legend>Оцветяване</legend>
-                <div class="config-options config-options--inline">
-                  <label class="config-option">
-                    <input type="radio" name="coloring" value="paints" checked>
-                    <span class="config-option__box">Бои с четка</span>
-                  </label>
-                  <label class="config-option">
-                    <input type="radio" name="coloring" value="markers">
-                    <span class="config-option__box">Флумастери</span>
-                  </label>
-                </div>
-              </fieldset>
-              <fieldset class="config-group">
-                <legend class="config-group__legend-row">
-                  <span>Име на закачалката</span>
-                  <span class="config-group__addon">+3 €</span>
-                  <label class="toggle">
-                    <input type="checkbox" name="personalize" id="personalizeToggle">
-                    <span class="toggle__slider"></span>
-                  </label>
+              <fieldset class="config-group config-group--kits">
+                <legend class="config-step">
+                  <span class="config-step__badge">1</span>
+                  <span class="config-step__label">Избери размер на комплекта</span>
                 </legend>
-                <div class="config-field config-field--collapsed" id="nameField">
-                  <label for="childName">Име на детето</label>
-                  <input type="text" id="childName" name="childName" placeholder="Например: Мая" maxlength="24">
+                <div class="config-kit-picker" role="radiogroup" aria-label="Размер на комплекта">
+                  <label class="variant variant--mini config-kit-card">
+                    <input type="radio" name="size" value="3" class="config-kit-card__input" checked>
+                    <span class="config-kit-card__check" aria-hidden="true">✓</span>
+                    <span class="config-kit-card__radio" aria-hidden="true"></span>
+                    <span class="variant__title">Комплект Мини</span>
+                    <span class="variant__tag">Малка магия</span>
+                    <div class="variant__visual">
+                      <img src="assets/elements.png" alt="" width="280" height="200" loading="lazy">
+                    </div>
+                    <ul class="variant__features">
+                      <li><svg class="variant__feat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="8" width="6" height="8" rx="1"/><rect x="14" y="6" width="6" height="10" rx="1"/></svg><span>3 фигурки</span></li>
+                      <li><svg class="variant__feat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 11c-3-4-7-5-7-2.5S9 10 12 8M12 11c3-4 7-5 7-2.5S15 10 12 8"/><path d="M12 11v5"/></svg><span>1 пеперуда + 2 водни кончета</span></li>
+                    </ul>
+                    <p class="variant__price"><span class="variant__price-value">13,50</span> <span class="variant__price-currency">€</span></p>
+                  </label>
+
+                  <label class="variant variant--standard variant--best config-kit-card">
+                    <input type="radio" name="size" value="5" class="config-kit-card__input">
+                    <span class="variant__badge">★ Най-поръчван</span>
+                    <span class="config-kit-card__check" aria-hidden="true">✓</span>
+                    <span class="config-kit-card__radio" aria-hidden="true"></span>
+                    <span class="variant__title">Комплект Стандарт</span>
+                    <span class="variant__tag">Цветна магия</span>
+                    <div class="variant__visual">
+                      <img src="assets/personal.png" alt="" width="280" height="200" loading="lazy">
+                    </div>
+                    <ul class="variant__features">
+                      <li><svg class="variant__feat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="8" width="5" height="8" rx="1"/><rect x="9.5" y="6" width="5" height="10" rx="1"/><rect x="16" y="8" width="5" height="8" rx="1"/></svg><span>5 фигурки</span></li>
+                      <li><svg class="variant__feat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 11c-3-4-7-5-7-2.5S9 10 12 8M12 11c3-4 7-5 7-2.5S15 10 12 8"/><path d="M12 11v5"/></svg><span>3 пеперуди + 2 водни кончета</span></li>
+                    </ul>
+                    <p class="variant__price"><span class="variant__price-value">18</span> <span class="variant__price-currency">€</span></p>
+                  </label>
+
+                  <label class="variant variant--maxi config-kit-card">
+                    <input type="radio" name="size" value="7" class="config-kit-card__input">
+                    <span class="config-kit-card__check" aria-hidden="true">✓</span>
+                    <span class="config-kit-card__radio" aria-hidden="true"></span>
+                    <span class="variant__title">Комплект Макси</span>
+                    <span class="variant__tag">Пълна магия</span>
+                    <div class="variant__visual">
+                      <img src="assets/hero-1.png" alt="" width="280" height="200" loading="lazy">
+                    </div>
+                    <ul class="variant__features">
+                      <li><svg class="variant__feat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="9" width="4" height="7" rx="1"/><rect x="7" y="7" width="4" height="9" rx="1"/><rect x="12" y="8" width="4" height="8" rx="1"/><rect x="17" y="9" width="4" height="7" rx="1"/></svg><span>7 фигурки</span></li>
+                      <li><svg class="variant__feat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 11c-3-4-7-5-7-2.5S9 10 12 8M12 11c3-4 7-5 7-2.5S15 10 12 8"/><path d="M12 11v5"/></svg><span>3 пеперуди + 4 водни кончета</span></li>
+                    </ul>
+                    <p class="variant__price"><span class="variant__price-value">24</span> <span class="variant__price-currency">€</span></p>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="config-group">
+                <legend class="config-step">
+                  <span class="config-step__badge">2</span>
+                  <span class="config-step__label">Избери оцветяване</span>
+                </legend>
+                <div class="config-options config-options--inline config-color-picker" role="radiogroup" aria-label="Оцветяване">
+                  <label class="config-color-card">
+                    <input type="radio" name="coloring" value="paints" checked>
+                    <span class="config-color-card__radio" aria-hidden="true"></span>
+                    <span class="config-color-card__text">
+                      <span class="config-color-card__title">Бои с четка</span>
+                      <span class="config-color-card__sub">Класическо и лесно за най-малките.</span>
+                    </span>
+                    <span class="config-color-card__media" aria-hidden="true">
+                      <img src="assets/colors.png" alt="" width="220" height="120" loading="lazy">
+                    </span>
+                  </label>
+                  <label class="config-color-card">
+                    <input type="radio" name="coloring" value="markers">
+                    <span class="config-color-card__radio" aria-hidden="true"></span>
+                    <span class="config-color-card__text">
+                      <span class="config-color-card__title">Флумастери</span>
+                      <span class="config-color-card__sub">Ярки цветове и лесно оцветяване.</span>
+                    </span>
+                    <span class="config-color-card__media" aria-hidden="true">
+                      <img src="assets/ocvetqva-1.png" alt="" width="220" height="120" loading="lazy">
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="config-group">
+                <legend class="config-step">
+                  <span class="config-step__badge">3</span>
+                  <span class="config-step__label">Персонализация (по желание)</span>
+                </legend>
+                <div class="config-extra">
+                  <div class="config-extra__row">
+                    <div class="config-extra__info">
+                      <label class="toggle">
+                        <input type="checkbox" name="personalize" id="personalizeToggle">
+                        <span class="toggle__slider"></span>
+                      </label>
+                      <span class="config-extra__name">Добави име на дървената закачалка</span>
+                      <span class="config-extra__price">+3 €</span>
+                    </div>
+                  </div>
+                  <div class="config-field config-field--collapsed" id="nameField">
+                    <label for="childName">Име</label>
+                    <input type="text" id="childName" name="childName" placeholder="Например: Мая" maxlength="24">
+                  </div>
                 </div>
               </fieldset>
             </form>
-            <aside class="config-summary config-summary--purchase" id="configSummary" aria-live="polite">
+          </div>
+
+          <aside class="config-summary config-summary--purchase" id="configSummary" aria-live="polite">
               <p class="config-summary__label">Твоят избор</p>
-              <h3>Обобщение</h3>
+              <h3 id="summaryTitle">Обобщение</h3>
               <div id="summaryKit"></div>
               <ul id="summaryList"></ul>
               <div id="summaryExtras"></div>
@@ -375,10 +470,6 @@
           </div>
       </div>
     </section>
-
-    <div class="wave wave--june" aria-hidden="true">
-      <svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,20 C320,42 640,6 960,28 1440,14 L1440,48 L0,48 Z"/></svg>
-    </div>
 
     <!-- 1 June -->
     <section class="flow-section flow-section--june" id="den-na-deteto">
@@ -400,10 +491,6 @@
         </figure>
       </div>
     </section>
-
-    <div class="wave wave--beige" aria-hidden="true">
-      <svg viewBox="0 0 1440 48" preserveAspectRatio="none"><path d="M0,16 C360,44 720,6 1080,30 1440,8 L1440,48 L0,48 Z"/></svg>
-    </div>
 
     <!-- Gallery — split layout -->
     <section class="flow-section flow-section--gallery" id="galeria">
@@ -497,9 +584,6 @@
 
     <!-- Final CTA — footer band -->
     <section class="cta-footer" id="porachai">
-      <div class="cta-footer__wave" aria-hidden="true">
-        <svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,30 C360,5 720,45 1080,15 C1260,35 1440,10 L1440,60 L0,60 Z" fill="currentColor"/></svg>
-      </div>
       <div class="container cta-footer__inner">
         <span class="cta-footer__icon" aria-hidden="true">🎁</span>
         <div class="cta-footer__text">

@@ -57,6 +57,7 @@
   const nameField = document.getElementById('nameField');
   const personalizeToggle = document.getElementById('personalizeToggle');
   const childNameInput = document.getElementById('childName');
+  const summaryTitle = document.getElementById('summaryTitle');
   const orderBtn = document.getElementById('orderBtn');
   const orderModal = document.getElementById('orderModal');
   const modalSummary = document.getElementById('modalSummary');
@@ -125,21 +126,23 @@
     const kit = KITS[state.size];
     const { total, lines } = calculatePrice(state);
 
+    if (summaryTitle) summaryTitle.textContent = kit.name;
+
     summaryKit.innerHTML = `
-      <p class="config-summary__kit-name">${escapeHtml(kit.name)}</p>
       <p class="config-summary__kit-figures">${escapeHtml(kit.figures)}</p>
     `;
 
-    summaryList.innerHTML = [...kit.items, COLORING_LABELS[state.coloring]]
+    summaryList.innerHTML = kit.items
       .map((line) => `<li>${escapeHtml(line)}</li>`)
       .join('');
 
-    const extras = [];
-    if (state.personalize) extras.push('Персонализирана закачалка с име');
+    const extras = [`Оцветяване: ${COLORING_LABELS[state.coloring]}`];
+    if (state.personalize) extras.push('Име на закачалката (+3 €)');
 
-    summaryExtras.innerHTML = extras.length
-      ? `<p class="config-summary__extras-title">Допълнения</p><ul>${extras.map((e) => `<li>${escapeHtml(e)}</li>`).join('')}</ul>`
-      : '';
+    summaryExtras.innerHTML = `
+      <p class="config-summary__extras-title">Избор</p>
+      <ul>${extras.map((e) => `<li>${escapeHtml(e)}</li>`).join('')}</ul>
+    `;
 
     if (state.personalize && state.childName) {
       summaryName.textContent = `Име на закачалката: ${state.childName}`;
@@ -181,13 +184,16 @@
   function applyPreset(preset) {
     const sizeVal = PRESETS[preset] || '3';
     const sizeInput = form.querySelector(`input[name="size"][value="${sizeVal}"]`);
-    if (sizeInput) sizeInput.checked = true;
+    if (sizeInput) {
+      sizeInput.checked = true;
+      sizeInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     if (preset === 'standard' || preset === 'large') {
-      personalizeToggle.checked = true;
+      if (personalizeToggle) personalizeToggle.checked = true;
       setFieldExpanded(nameField, true);
     }
     updateSummary();
-    document.getElementById('configurator')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('configurator')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   form.addEventListener('change', updateSummary);

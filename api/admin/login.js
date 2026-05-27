@@ -4,6 +4,7 @@ const {
   createSessionToken,
   buildSessionCookie,
   buildClearSessionCookie,
+  isAdminPasswordConfigured,
 } = require('../lib/admin-auth');
 
 module.exports = async function handler(req, res) {
@@ -22,9 +23,17 @@ module.exports = async function handler(req, res) {
   const parsed = parseBody(req);
   if (parsed.error) return json(res, 400, { ok: false, error: parsed.error });
 
-  const password = String(parsed.body.password || '');
+  const password = String(parsed.body.password || '').trim();
   if (!password) {
     return json(res, 400, { ok: false, error: 'Въведи парола.' });
+  }
+
+  if (!isAdminPasswordConfigured()) {
+    console.error('[admin/login] ADMIN_PASSWORD is not set');
+    return json(res, 500, {
+      ok: false,
+      error: 'ADMIN_PASSWORD не е зададен в Vercel. Добави променливата и направи Redeploy.',
+    });
   }
 
   if (!verifyAdminPassword(password)) {

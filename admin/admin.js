@@ -36,13 +36,36 @@
   let activeOrderId = null;
   let searchTimer = null;
 
+  const TOKEN_KEY = 'admin_token';
+
+  function getStoredToken() {
+    try {
+      return sessionStorage.getItem(TOKEN_KEY) || '';
+    } catch {
+      return '';
+    }
+  }
+
+  function setStoredToken(token) {
+    try {
+      if (token) sessionStorage.setItem(TOKEN_KEY, token);
+      else sessionStorage.removeItem(TOKEN_KEY);
+    } catch {
+      /* private mode */
+    }
+  }
+
   function api(path, options = {}) {
+    const token = getStoredToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    };
+    if (token) headers.Authorization = `Bearer ${token}`;
+
     return fetch(path, {
       credentials: 'same-origin',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options.headers || {}),
-      },
+      headers,
       ...options,
     });
   }
@@ -232,6 +255,7 @@
       const data = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
+        setStoredToken('');
         showLogin();
         return;
       }
@@ -267,6 +291,7 @@
         throw new Error(data.error || 'Грешна парола.');
       }
 
+      if (data.token) setStoredToken(data.token);
       loginPassword.value = '';
       showApp();
       await loadOrders();
@@ -278,6 +303,7 @@
   });
 
   logoutBtn.addEventListener('click', async () => {
+    setStoredToken('');
     await api('/api/admin/login', { method: 'DELETE' });
     showLogin();
   });

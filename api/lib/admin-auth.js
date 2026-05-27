@@ -8,6 +8,10 @@ function getSigningSecret() {
   return getEnv('ADMIN_PASSWORD');
 }
 
+function isAdminPasswordConfigured() {
+  return Boolean(getSigningSecret());
+}
+
 function timingSafeEqual(a, b) {
   const bufA = Buffer.from(String(a));
   const bufB = Buffer.from(String(b));
@@ -93,7 +97,8 @@ function requireAdmin(req) {
 
 function buildSessionCookie(token) {
   const maxAge = Math.floor(TOKEN_TTL_MS / 1000);
-  const secure = process.env.VERCEL || process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  // Secure only on production HTTPS — vercel dev runs on http://localhost
+  const secure = process.env.VERCEL_ENV === 'production' ? '; Secure' : '';
   return `${COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
 }
 
@@ -102,9 +107,9 @@ function buildClearSessionCookie() {
 }
 
 function verifyAdminPassword(password) {
-  const expected = getEnv('ADMIN_PASSWORD');
+  const expected = getSigningSecret();
   if (!expected) return false;
-  return timingSafeEqual(password, expected);
+  return timingSafeEqual(String(password).trim(), expected);
 }
 
 module.exports = {
@@ -116,4 +121,5 @@ module.exports = {
   buildSessionCookie,
   buildClearSessionCookie,
   verifyAdminPassword,
+  isAdminPasswordConfigured,
 };

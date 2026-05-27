@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ — Вълшебни пеперуди</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <div id="login-view" class="view view--login">
+    <div class="login-card">
+      <h1 class="login-card__title">Админ панел</h1>
+      <p class="login-card__subtitle">Вълшебни пеперуди · VeMiDi crafts</p>
+      <form id="login-form" class="login-form" autocomplete="current-password">
+        <label class="field">
+          <span class="field__label">Парола</span>
+          <input type="password" id="login-password" name="password" required autocomplete="current-password">
+        </label>
+        <p id="login-error" class="form-error" role="alert" hidden></p>
+        <button type="submit" class="btn btn--primary" id="login-submit">Вход</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="app-view" class="view view--app" hidden>
+    <header class="admin-header">
+      <div class="admin-header__inner">
+        <div>
+          <h1 class="admin-header__title">Поръчки</h1>
+          <p class="admin-header__subtitle">Вълшебни пеперуди</p>
+        </div>
+        <button type="button" class="btn btn--ghost" id="logout-btn">Изход</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="toolbar">
+        <label class="field field--inline">
+          <span class="field__label">Статус</span>
+          <select id="filter-status">
+            <option value="all">Всички</option>
+          </select>
+        </label>
+        <label class="field field--grow">
+          <span class="field__label">Търсене</span>
+          <input type="search" id="search-input" placeholder="Име, телефон или име на дете…" autocomplete="off">
+        </label>
+        <button type="button" class="btn btn--secondary" id="refresh-btn">Обнови</button>
+      </div>
+
+      <p id="list-error" class="form-error" role="alert" hidden></p>
+      <p id="list-loading" class="list-loading" hidden>Зареждане…</p>
+      <p id="list-empty" class="list-empty" hidden>Няма поръчки за показване.</p>
+
+      <div class="table-wrap" id="orders-table-wrap" hidden>
+        <table class="orders-table" id="orders-table">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Статус</th>
+              <th>Клиент</th>
+              <th>Телефон</th>
+              <th>Комплект</th>
+              <th>Сума</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="orders-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="orders-cards" id="orders-cards" hidden></div>
+    </main>
+  </div>
+
+  <dialog id="order-dialog" class="order-dialog">
+    <form method="dialog" class="order-dialog__inner">
+      <header class="order-dialog__header">
+        <h2 class="order-dialog__title" id="dialog-title">Поръчка</h2>
+        <button type="button" class="order-dialog__close" id="dialog-close" aria-label="Затвори">&times;</button>
+      </header>
+      <div class="order-dialog__body" id="dialog-body"></div>
+      <footer class="order-dialog__footer">
+        <label class="field">
+          <span class="field__label">Статус</span>
+          <select id="dialog-status"></select>
+        </label>
+        <button type="button" class="btn btn--primary" id="dialog-save-status">Запази статус</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script src="/admin/admin.js" defer></script>
+</body>
+</html>

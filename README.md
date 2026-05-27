@@ -4,21 +4,61 @@ Landing page за творческия комплект „Вълшебни пе
 
 ## Стартиране
 
-### Статичен преглед
+### Само визуален преглед (без поръчки)
 
 ```bash
 npx serve .
 ```
 
-### С checkout API (Vercel)
+Това **не** стартира `/api/*`. Бутонът „Потвърди поръчката“ и админ панелът няма да работят коректно — използвай `vercel dev` или production.
 
-Деплой на [Vercel](https://vercel.com) — папката `api/` се обслужва като serverless functions.
+### Локално с пълен flow (поръчки, имейл, админ)
 
-Локално с Vercel CLI:
+1. Копирай `.env.example` → `.env.local` и попълни реалните стойности (не го commit-вай).
+2. Стартирай:
 
 ```bash
 npx vercel dev
 ```
+
+3. Отвори URL-а от терминала (обикновено `http://localhost:3000`).
+
+### Production (Vercel)
+
+Деплой на [Vercel](https://vercel.com) — папката `api/` се обслужва като serverless functions. Env променливите се задават в Project Settings → Environment Variables, после **Redeploy**.
+
+## Админ панел
+
+URL: **`/admin`** (напр. `https://your-site.vercel.app/admin`)
+
+1. Отвори `/admin` в браузъра.
+2. Въведи паролата от environment variable **`ADMIN_PASSWORD`** (паролата не е във frontend кода).
+3. След успешен вход се пази HttpOnly cookie със session token (валиден 7 дни).
+4. Виждаш списък с поръчки (най-новите първи), филтър по статус и търсене по име, телефон или име на дете.
+5. От „Детайли“ можеш да смениш статуса — промяната се записва в Supabase.
+
+### Статуси
+
+| Код | Етикет |
+|-----|--------|
+| `new` | Нова |
+| `confirmed` | Потвърдена |
+| `making` | Изработва се |
+| `shipped` | Изпратена |
+| `completed` | Завършена |
+| `cancelled` | Отказана |
+
+### Admin API (изисква валидна session)
+
+| Endpoint | Метод | Описание |
+|----------|-------|----------|
+| `/api/admin/login` | POST | Вход с `{ "password": "..." }` |
+| `/api/admin/login` | DELETE | Изход |
+| `/api/admin/session` | GET | Проверка на сесията |
+| `/api/admin/orders` | GET | Списък (`?status=`, `?q=`) |
+| `/api/admin/orders?id=UUID` | PATCH | Смяна на статус `{ "status": "confirmed" }` |
+
+Supabase service role key се използва **само** в serverless functions, не в браузъра.
 
 ## Конфигуратор
 
@@ -26,7 +66,7 @@ npx vercel dev
 - Бои или флумастери
 - Персонализация с име (+2,50 €)
 - Динамично обобщение и обща цена в евро
-- Бутон **Поръчай** отваря checkout форма (не само modal)
+- Бутон **Поръчай** отваря checkout форма
 
 ## Checkout
 
@@ -35,7 +75,7 @@ npx vercel dev
 - Име, телефон, имейл (по желание), бележка
 - Куриер: Еконт / Спиди
 - Доставка: до офис / до адрес
-- Град и офис/адрес (ръчно въвеждане, без API за момента)
+- Град и офис/адрес (ръчно въвеждане)
 - Плащане: **само наложен платеж**
 - GDPR съгласие (задължително)
 
@@ -43,93 +83,82 @@ npx vercel dev
 
 ## Environment variables (Vercel)
 
-Задай в Project Settings → Environment Variables:
+Задай в Project Settings → Environment Variables (за **Production** и при нужда **Preview**):
 
 | Variable | Описание |
 |----------|----------|
-| `SUPABASE_URL` | URL на Supabase проекта |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (само на сървъра) |
+| `SUPABASE_URL` | URL на Supabase проекта (без `/rest/v1`) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Secret / service role key (само на сървъра) |
 | `RESEND_API_KEY` | API ключ от [Resend](https://resend.com) |
 | `ORDER_NOTIFY_EMAIL` | Имейл за известия при нова поръчка |
 | `FROM_EMAIL` | Подател, напр. `VeMiDi crafts <noreply@yourdomain.com>` |
+| `ADMIN_PASSWORD` | Парола за вход в `/admin` |
 
 Виж `.env.example` за шаблон. **Не комитвай** реални ключове.
 
+След добавяне или промяна на env: **Redeploy** на проекта.
+
 ## Supabase
 
-Изпълни `supabase/schema.sql` в SQL Editor:
-
-```sql
-create table orders (
-  id uuid primary key default gen_random_uuid(),
-  created_at timestamptz default now(),
-  status text default 'new',
-  product_name text,
-  kit_name text,
-  kit_size text,
-  coloring text,
-  personalization boolean default false,
-  child_name text,
-  total_price numeric(10,2),
-  currency text default 'EUR',
-  customer_name text not null,
-  customer_phone text not null,
-  customer_email text,
-  courier text,
-  delivery_type text,
-  city text,
-  delivery_details text,
-  payment_method text default 'cash_on_delivery',
-  note text,
-  raw_payload jsonb
-);
-```
+Изпълни `supabase/schema.sql` в SQL Editor (таблица `orders` с колона `status`).
 
 ## API
 
 ### `POST /api/orders`
 
-Записва поръчка в Supabase и изпраща имейл известие чрез Resend.
+Записва поръчка в Supabase и опитва да изпрати имейл чрез Resend.
 
-След успешен запис в `orders`, изпраща се имейл до `ORDER_NOTIFY_EMAIL` с subject **„Нова поръчка: Вълшебни пеперуди“** (всички данни от поръчката). Ако имейлът се провали, поръчката остава записана; грешката се логва във Vercel Functions.
-
-Примерен payload:
+**Отговор при успех (201):**
 
 ```json
 {
-  "gdpr": true,
-  "note": "Моля, обадете се преди доставка",
-  "customer": {
-    "name": "Мария Иванова",
-    "phone": "0888123456",
-    "email": "maria@example.com"
-  },
-  "delivery": {
-    "courier": "econt",
-    "type": "office",
-    "city": "София",
-    "details": "Офис Еконт Младост 1"
-  },
-  "order": {
-    "kitSize": "5",
-    "kitName": "Комплект Стандарт",
-    "kitFigures": "5 фигурки",
-    "coloring": "paints",
-    "coloringLabel": "Бои с четка",
-    "personalize": true,
-    "childName": "Мая",
-    "totalPrice": 20.5,
-    "paymentMethod": "cash_on_delivery"
-  },
-  "created_at": "2026-05-27T12:00:00.000Z"
+  "ok": true,
+  "orderId": "uuid",
+  "message": "Поръчката е записана успешно.",
+  "emailSent": true
 }
 ```
 
+- `emailSent: true` — имейлът е изпратен до `ORDER_NOTIFY_EMAIL`.
+- `emailSent: false` — поръчката е записана, но имейлът не е изпратен (липсващ env или грешка при Resend). Детайлите за грешката се логват само в backend console (Vercel Functions logs).
+
+**Subject на имейла:**  
+`Нова поръчка: Вълшебни пеперуди – [име на клиента] – [сума] €`
+
+Имейлът съдържа: клиент, телефон, имейл, комплект, оцветяване, персонализация, име, доставка, куриер, обща цена, бележка.
+
+## Тестване
+
+### Нова поръчка
+
+1. `npx vercel dev` с попълнен `.env.local`, или production URL след deploy.
+2. Конфигуратор → **Поръчай** → попълни checkout → **Потвърди поръчката**.
+3. Провери в Supabase → Table Editor → `orders`.
+4. Провери в `/admin`, че поръчката се вижда.
+
+### Имейл notification
+
+1. Задай `RESEND_API_KEY`, `ORDER_NOTIFY_EMAIL`, `FROM_EMAIL` в env.
+2. Направи тестова поръчка.
+3. Провери пощата на `ORDER_NOTIFY_EMAIL`.
+4. В Network tab на отговора от `POST /api/orders` виж `emailSent`.
+5. При проблем: Vercel → Project → Logs → Functions → `api/orders`.
+
+### Смяна на статус
+
+1. Влез в `/admin`.
+2. Отвори **Детайли** на поръчка.
+3. Избери нов статус → **Запази статус**.
+4. Потвърди в Supabase или с refresh в админ списъка.
+
 ## Файлове
 
-- `index.html` — структура, конфигуратор, checkout modal
-- `styles.css` — визуална идентичност и responsive layout
-- `script.js` — конфигуратор, checkout и изпращане на поръчка
-- `api/orders.js` — Vercel serverless: Supabase + Resend
+- `index.html` — landing, конфигуратор, checkout modal
+- `styles.css` — визуална идентичност
+- `script.js` — конфигуратор и checkout
+- `admin/` — админ UI (`index.html`, `admin.css`, `admin.js`)
+- `api/orders.js` — създаване на поръчка + имейл
+- `api/admin/` — login, session, orders
+- `api/lib/` — споделена логика (Supabase, auth, email)
 - `supabase/schema.sql` — таблица `orders`
 - `assets/` — изображения

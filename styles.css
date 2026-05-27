@@ -1417,6 +1417,9 @@ label { margin-right: 0; }
 }
 .config-kit-picker .variant--best {
   transform: none;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
 }
 .config-kit-picker .variant--best:has(.config-kit-card__input:checked) {
   transform: translateY(-2px);
@@ -2766,7 +2769,8 @@ label { margin-right: 0; }
   .config-kit-picker .variant--best {
     grid-column: auto;
     max-width: none;
-    width: auto;
+    width: 100%;
+    margin-inline: 0;
     transform: none;
   }
   .variants-row {
@@ -2965,6 +2969,9 @@ label { margin-right: 0; }
   .config-kit-picker .variant--best {
     transform: none;
     grid-column: auto;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
   }
   .personalize-split { grid-template-columns: 1fr; text-align: center; }
   .personalize__photo { margin-inline: auto; }

@@ -14,6 +14,15 @@ function getEnv(name) {
   return value && String(value).trim() ? String(value).trim() : '';
 }
 
+function getSupabaseConfig() {
+  const url = getEnv('SUPABASE_URL');
+  const serviceKey = getEnv('SUPABASE_SERVICE_ROLE_KEY');
+  const missing = [];
+  if (!url) missing.push('SUPABASE_URL');
+  if (!serviceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
+  return { url, serviceKey, missing };
+}
+
 function isValidEmail(value) {
   if (!value) return true;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -103,12 +112,17 @@ function buildOrderRecord(body) {
 }
 
 async function insertOrder(record) {
-  const supabaseUrl = getEnv('SUPABASE_URL');
-  const serviceKey = getEnv('SUPABASE_SERVICE_ROLE_KEY');
+  const { url: supabaseUrl, serviceKey, missing } = getSupabaseConfig();
 
-  if (!supabaseUrl || !serviceKey) {
-    const err = new Error('Missing Supabase configuration.');
+  if (missing.length) {
+    const err = new Error(`Missing: ${missing.join(', ')}`);
     err.code = 'MISSING_SUPABASE_ENV';
+    err.missing = missing;
+    throw err;
+  }
+  if (!/^https?:\/\//.test(supabaseUrl)) {
+    const err = new Error('Supabase URL must start with http/https.');
+    err.code = 'INVALID_SUPABASE_URL';
     throw err;
   }
 
@@ -125,7 +139,10 @@ async function insertOrder(record) {
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Supabase insert failed: ${response.status} ${text}`);
+    const err = new Error(`Supabase insert failed: ${response.status} ${text}`);
+    err.code = 'SUPABASE_INSERT_FAILED';
+    err.status = response.status;
+    throw err;
   }
 
   const rows = await response.json();
@@ -255,10 +272,41 @@ module.exports = async function handler(req, res) {
   } catch (err) {
     console.error('Order API error:', err);
     if (err && err.code === 'MISSING_SUPABASE_ENV') {
+      const missing = Array.isArray(err.missing) ? err.missing : [];
+      const detail =
+        missing.length > 0
+          ? `Липсват в Vercel Environment Variables: ${missing.join(', ')}.`
+          : 'Липсват SUPABASE_URL или SUPABASE_SERVICE_ROLE_KEY.';
       return json(res, 500, {
         ok: false,
-        error:
-          'Сървърът не е конфигуриран напълно. Липсват SUPABASE_URL или SUPABASE_SERVICE_ROLE_KEY.',
+        error: `Сървърът не е конфигуриран напълно. ${detail} След промяна направи Redeploy на Production.`,
+        missing,
+      });
+    }
+    if (err && err.code === 'INVALID_SUPABASE_URL') {
+      return json(res, 500, {
+        ok: false,
+        error: 'SUPABASE_URL не е валиден. Трябва да започва с https://',
+      });
+    }
+    if (err && err.code === 'SUPABASE_INSERT_FAILED') {
+      if (err.status === 401 || err.status === 403) {
+        return json(res, 500, {
+          ok: false,
+          error:
+            'Грешен SUPABASE_SERVICE_ROLE_KEY или няма достъп до таблицата orders.',
+        });
+      }
+      if (err.status === 404) {
+        return json(res, 500, {
+          ok: false,
+          error:
+            'Таблицата orders не е намерена. Пусни SQL файла supabase/schema.sql в Supabase.',
+        });
+      }
+      return json(res, 500, {
+        ok: false,
+        error: 'Supabase върна грешка при запис. Провери URL/ключа и структурата на таблицата orders.',
       });
     }
     return json(res, 500, {

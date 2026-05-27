@@ -3,13 +3,17 @@
 
   const PRICES = {
     base: { 3: 13.5, 5: 18, 7: 24 },
-    personalize: 3,
+    personalize: 2.5,
   };
 
   const KITS = {
     3: {
       name: 'Комплект Мини',
+      shortName: 'Мини',
       figures: '3 фигурки',
+      composition: '(1 пеперуда + 2 водни кончета)',
+      previewImage: 'assets/elements.png',
+      previewAlt: 'Комплект Мини — творчески комплект',
       items: [
         '1 дървена пеперуда',
         '2 дървени водни кончета',
@@ -20,7 +24,11 @@
     },
     5: {
       name: 'Комплект Стандарт',
+      shortName: 'Стандарт',
       figures: '5 фигурки',
+      composition: '(3 пеперуди + 2 водни кончета)',
+      previewImage: 'assets/personal.png',
+      previewAlt: 'Комплект Стандарт — готова украса',
       items: [
         '3 дървени пеперуди',
         '2 дървени водни кончета',
@@ -31,7 +39,11 @@
     },
     7: {
       name: 'Комплект Макси',
+      shortName: 'Макси',
       figures: '7 фигурки',
+      composition: '(3 пеперуди + 4 водни кончета)',
+      previewImage: 'assets/hero-1.png',
+      previewAlt: 'Комплект Макси — пълна визуализация',
       items: [
         '3 дървени пеперуди',
         '4 дървени водни кончета',
@@ -42,22 +54,38 @@
     },
   };
 
+  const COLORING = {
+    paints: {
+      label: 'Бои с четка',
+      description: 'Класическо и лесно за най-малките',
+    },
+    markers: {
+      label: 'Флумастери',
+      description: 'Ярки цветове и лесно оцветяване',
+    },
+  };
+
   const COLORING_LABELS = { paints: 'Бои с четка', markers: 'Флумастери' };
 
   const PRESETS = { mini: '3', standard: '5', maxi: '7', small: '3', large: '5' };
 
   const form = document.getElementById('configForm');
-  const summaryKit = document.getElementById('summaryKit');
-  const summaryList = document.getElementById('summaryList');
-  const summaryExtras = document.getElementById('summaryExtras');
-  const summaryName = document.getElementById('summaryName');
+  const summaryPreviewImg = document.getElementById('summaryPreviewImg');
+  const summaryBadges = document.getElementById('summaryBadges');
+  const summaryInfoTitle = document.getElementById('summaryInfoTitle');
+  const summaryRowKitTag = document.getElementById('summaryRowKitTag');
+  const summaryRowKitDesc = document.getElementById('summaryRowKitDesc');
+  const summaryRowKitSub = document.getElementById('summaryRowKitSub');
+  const summaryRowColorTag = document.getElementById('summaryRowColorTag');
+  const summaryRowColorDesc = document.getElementById('summaryRowColorDesc');
+  const summaryRowPersonalTag = document.getElementById('summaryRowPersonalTag');
+  const summaryRowPersonalDesc = document.getElementById('summaryRowPersonalDesc');
   const priceBreakdown = document.getElementById('priceBreakdown');
   const totalPriceEl = document.getElementById('totalPrice');
   const configErrors = document.getElementById('configErrors');
   const nameField = document.getElementById('nameField');
   const personalizeToggle = document.getElementById('personalizeToggle');
   const childNameInput = document.getElementById('childName');
-  const summaryTitle = document.getElementById('summaryTitle');
   const orderBtn = document.getElementById('orderBtn');
   const orderModal = document.getElementById('orderModal');
   const modalSummary = document.getElementById('modalSummary');
@@ -77,6 +105,13 @@
   function formatPrice(amount) {
     if (Number.isInteger(amount)) return `${amount} €`;
     return `${amount.toFixed(2).replace('.', ',')} €`;
+  }
+
+  function formatPricePlus(amount) {
+    const value = Number.isInteger(amount)
+      ? `${amount},00`
+      : amount.toFixed(2).replace('.', ',');
+    return `+${value} €`;
   }
 
   function getFormState() {
@@ -124,44 +159,73 @@
     clearErrors();
     const state = getFormState();
     const kit = KITS[state.size];
-    const { total, lines } = calculatePrice(state);
+    const coloring = COLORING[state.coloring] || COLORING.paints;
+    const { total } = calculatePrice(state);
 
-    if (summaryTitle) summaryTitle.textContent = kit.name;
-
-    summaryKit.innerHTML = `
-      <p class="config-summary__kit-figures">${escapeHtml(kit.figures)}</p>
-    `;
-
-    summaryList.innerHTML = kit.items
-      .map((line) => `<li>${escapeHtml(line)}</li>`)
-      .join('');
-
-    const extras = [`Оцветяване: ${COLORING_LABELS[state.coloring]}`];
-    if (state.personalize) extras.push('Име на закачалката (+3 €)');
-
-    summaryExtras.innerHTML = `
-      <p class="config-summary__extras-title">Избор</p>
-      <ul>${extras.map((e) => `<li>${escapeHtml(e)}</li>`).join('')}</ul>
-    `;
-
-    if (state.personalize && state.childName) {
-      summaryName.textContent = `Име на закачалката: ${state.childName}`;
-      summaryName.hidden = false;
-    } else if (state.personalize) {
-      summaryName.textContent = 'Име на закачалката: (въведи по-долу)';
-      summaryName.hidden = false;
-    } else {
-      summaryName.hidden = true;
+    if (summaryPreviewImg) {
+      summaryPreviewImg.src = kit.previewImage;
+      summaryPreviewImg.alt = kit.previewAlt;
     }
 
-    const summaryCardMsg = document.getElementById('summaryCardMsg');
-    if (summaryCardMsg) summaryCardMsg.hidden = true;
+    if (summaryBadges) {
+      const badges = [kit.figures, coloring.label];
+      if (state.personalize && state.childName) {
+        badges.push(`Име: ${state.childName}`);
+      } else if (state.personalize) {
+        badges.push('Име на табелката');
+      }
+      summaryBadges.innerHTML = badges
+        .map((text) => `<span class="summary-badge">${escapeHtml(text)}</span>`)
+        .join('');
+    }
 
-    priceBreakdown.innerHTML = lines
-      .map((row) => `<div class="price-line"><span>${escapeHtml(row.label)}</span><span>${formatPrice(row.amount)}</span></div>`)
-      .join('');
+    if (summaryInfoTitle) {
+      summaryInfoTitle.textContent = state.personalize
+        ? 'Персонализирано специално за детето'
+        : 'Готово творческо преживяване';
+    }
 
-    totalPriceEl.textContent = formatPrice(total);
+    if (summaryRowKitTag) summaryRowKitTag.textContent = kit.shortName;
+    if (summaryRowKitDesc) summaryRowKitDesc.textContent = kit.figures;
+    if (summaryRowKitSub) summaryRowKitSub.textContent = kit.composition;
+
+    if (summaryRowColorTag) summaryRowColorTag.textContent = coloring.label;
+    if (summaryRowColorDesc) summaryRowColorDesc.textContent = coloring.description;
+
+    if (summaryRowPersonalTag) {
+      summaryRowPersonalTag.textContent = state.personalize
+        ? 'Име на табелката'
+        : 'Без име';
+    }
+    if (summaryRowPersonalDesc) {
+      if (state.personalize && state.childName) {
+        summaryRowPersonalDesc.textContent = `Име: ${state.childName}`;
+      } else if (state.personalize) {
+        summaryRowPersonalDesc.textContent = 'Въведи име за табелката по-долу';
+      } else {
+        summaryRowPersonalDesc.textContent = 'Може да добавиш персонализация към закачалката';
+      }
+    }
+
+    if (priceBreakdown) {
+      const pricingRows = [
+        `<div class="summary-price-line">
+          <span class="summary-price-line__label">Цена на комплекта</span>
+          <span class="summary-price-line__value">${formatPrice(PRICES.base[state.size])}</span>
+        </div>`,
+      ];
+      if (state.personalize) {
+        pricingRows.push(
+          `<div class="summary-price-line">
+            <span class="summary-price-line__label">Персонализация</span>
+            <span class="summary-price-line__value summary-price-line__value--extra">${formatPricePlus(PRICES.personalize)}</span>
+          </div>`
+        );
+      }
+      priceBreakdown.innerHTML = pricingRows.join('');
+    }
+
+    if (totalPriceEl) totalPriceEl.textContent = formatPrice(total);
   }
 
   function validate(state) {

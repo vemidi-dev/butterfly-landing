@@ -184,7 +184,7 @@
                 <img src="assets/ocvetqva-1.png" alt="Дете оцветява дървена пеперуда">
               </div>
               <figcaption class="hero__polaroid-caption">
-                Създадено с усмивки <span class="hero__polaroid-heart" aria-hidden="true">♥</span>
+                Създадено, за да създава усмивки <span class="hero__polaroid-heart" aria-hidden="true">♥</span>
               </figcaption>
             </figure>
           </div>
@@ -441,7 +441,7 @@
                         <span class="toggle__slider"></span>
                       </label>
                       <span class="config-extra__name">Добави име на дървената закачалка</span>
-                      <span class="config-extra__price">+3 €</span>
+                      <span class="config-extra__price">+2,50 €</span>
                     </div>
                   </div>
                   <div class="config-field config-field--collapsed" id="nameField">
@@ -454,41 +454,142 @@
           </div>
 
           <aside class="config-summary config-summary--purchase" id="configSummary" aria-live="polite">
-              <p class="config-summary__label">Твоят избор</p>
-              <h3 id="summaryTitle">Обобщение</h3>
-              <div id="summaryKit"></div>
-              <ul id="summaryList"></ul>
-              <div id="summaryExtras"></div>
-              <p id="summaryName" hidden></p>
-              <p id="summaryCardMsg" hidden></p>
-              <div class="config-summary__breakdown" id="priceBreakdown"></div>
-              <p class="config-summary__total"><span>Общо</span><strong id="totalPrice">13,50 €</strong></p>
-              <div class="config-errors" id="configErrors" role="alert" hidden></div>
-              <button type="button" class="btn btn--primary btn--block btn--lg" id="orderBtn">Поръчай Вълшебни пеперуди</button>
-              <p class="config-summary__note">Ръчно изработено от VeMiDi crafts · с любов за 1 юни</p>
-            </aside>
+            <h2 class="config-summary__heading">Твоята цветна магия</h2>
+
+            <div class="config-summary__grid">
+              <div class="config-summary__col config-summary__col--preview">
+                <figure class="summary-preview">
+                  <img id="summaryPreviewImg" src="assets/elements.png" alt="Комплект Мини — творчески комплект" width="480" height="360" loading="lazy">
+                </figure>
+                <div class="summary-badges" id="summaryBadges" aria-label="Избрани опции"></div>
+                <div class="summary-info" id="summaryInfoBlock">
+                  <p class="summary-info__title" id="summaryInfoTitle">Готово творческо преживяване</p>
+                  <p class="summary-info__sub">Създадено с любов и внимание</p>
+                </div>
+              </div>
+
+              <div class="config-summary__col config-summary__col--choices">
+                <ul class="summary-rows" id="summaryRows">
+                  <li class="summary-row summary-row--kit">
+                    <span class="summary-row__icon summary-row__icon--kit" aria-hidden="true">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg>
+                    </span>
+                    <div class="summary-row__body">
+                      <span class="summary-row__label">Комплект</span>
+                      <span class="summary-row__tag" id="summaryRowKitTag">Мини</span>
+                      <p class="summary-row__desc" id="summaryRowKitDesc">3 фигурки</p>
+                      <p class="summary-row__sub" id="summaryRowKitSub">(1 пеперуда + 2 водни кончета)</p>
+                    </div>
+                    <span class="summary-row__arrow" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 18 6-6-6-6"/></svg>
+                    </span>
+                  </li>
+                  <li class="summary-row summary-row--coloring">
+                    <span class="summary-row__icon summary-row__icon--coloring" aria-hidden="true">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l-1.5-1.5M12 5l-1.5 1.5M5 12l1.5-1.5M19 12l-1.5 1.5"/><circle cx="12" cy="12" r="3"/></svg>
+                    </span>
+                    <div class="summary-row__body">
+                      <span class="summary-row__label">Оцветяване</span>
+                      <span class="summary-row__tag" id="summaryRowColorTag">Бои с четка</span>
+                      <p class="summary-row__desc" id="summaryRowColorDesc">Класическо и лесно за най-малките</p>
+                    </div>
+                    <span class="summary-row__arrow" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 18 6-6-6-6"/></svg>
+                    </span>
+                  </li>
+                  <li class="summary-row summary-row--personal">
+                    <span class="summary-row__icon summary-row__icon--personal" aria-hidden="true">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </span>
+                    <div class="summary-row__body">
+                      <span class="summary-row__label">Персонализация</span>
+                      <span class="summary-row__tag" id="summaryRowPersonalTag">Без име</span>
+                      <p class="summary-row__desc" id="summaryRowPersonalDesc">Може да добавиш персонализация към закачалката</p>
+                    </div>
+                    <span class="summary-row__arrow" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m9 18 6-6-6-6"/></svg>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="config-summary__col config-summary__col--checkout">
+                <div class="summary-pricing" id="priceBreakdown"></div>
+                <div class="summary-total">
+                  <span class="summary-total__label">Общо</span>
+                  <strong class="summary-total__value" id="totalPrice">13,50 €</strong>
+                </div>
+                <div class="summary-delivery">
+                  <p class="summary-delivery__title">Бърза изработка и доставка</p>
+                  <p class="summary-delivery__text">Получавате навреме с грижа към всеки детайл</p>
+                </div>
+                <div class="config-errors" id="configErrors" role="alert" hidden></div>
+                <button type="button" class="btn btn--primary btn--block btn--lg summary-order-btn" id="orderBtn">Поръчай Вълшебни пеперуди ✨</button>
+                <p class="config-summary__note">Ръчно изработено от VeMiDi crafts с любов ❤</p>
+              </div>
+            </div>
+          </aside>
           </div>
       </div>
     </section>
 
-    <!-- 1 June -->
-    <section class="flow-section flow-section--june" id="den-na-deteto">
-      <div class="container june-block">
-        <div class="june-block__copy">
-          <p class="june-block__eyebrow">Подарък за 1 юни</p>
-          <h2 class="section__title">Подарък за 1 юни, който остава като спомен</h2>
-          <p class="june-block__text">На Деня на детето подари нещо, което не остава забравено в кутия. „Вълшебни пеперуди“ се превръща в лично творение, което детето вижда всеки ден в стаята си — цветно напомняне за радостта, въображението и магията на детството.</p>
-          <ul class="june-block__highlights">
-            <li><span aria-hidden="true">✦</span> Не просто играчка</li>
-            <li><span aria-hidden="true">✦</span> Творческо преживяване</li>
-            <li><span aria-hidden="true">✦</span> Украса, направена от детето</li>
-          </ul>
-          <p class="june-block__cta-note">Избери до 1 юни и подари готово творческо преживяване.</p>
-          <a href="#configurator" class="btn btn--primary btn--block-mobile">Избери комплект за 1 юни</a>
+    <!-- Occasions -->
+    <section class="flow-section flow-section--occasions" id="povodi" aria-labelledby="occasions-heading">
+      <div class="container occasions">
+        <header class="occasions__header">
+          <h2 class="section__title" id="occasions-heading">За всеки специален момент</h2>
+          <p class="occasions__lead">„Вълшебни пеперуди“ е повече от подарък — това е творческо преживяване, личен спомен и украса, която остава.</p>
+        </header>
+        <div class="occasions__grid">
+          <article class="occasion-card">
+            <h3 class="occasion-card__title">1-ви юни</h3>
+            <p class="occasion-card__text">Празник на детето, пълен с радост, творчество и цветна магия.</p>
+            <span class="occasion-card__deco" aria-hidden="true">♥</span>
+            <figure class="occasion-card__media">
+              <img src="assets/personalized.png" alt="Готова украса за 1 юни">
+            </figure>
+          </article>
+          <article class="occasion-card">
+            <h3 class="occasion-card__title">Рожден ден</h3>
+            <p class="occasion-card__text">Личен подарък, който детето не просто получава, а създава само.</p>
+            <span class="occasion-card__deco" aria-hidden="true">♥</span>
+            <figure class="occasion-card__media">
+              <img src="assets/pack.png" alt="Подаръчна опаковка за рожден ден">
+            </figure>
+          </article>
+          <article class="occasion-card">
+            <h3 class="occasion-card__title">Край на учебната година</h3>
+            <p class="occasion-card__text">Красив начин да отбележите усилията, порастването и малките победи.</p>
+            <span class="occasion-card__deco" aria-hidden="true">♥</span>
+            <figure class="occasion-card__media">
+              <img src="assets/ocvetqva-1.png" alt="Дете оцветява комплект">
+            </figure>
+          </article>
+          <article class="occasion-card">
+            <h3 class="occasion-card__title">Имен ден</h3>
+            <p class="occasion-card__text">Подарък с име, който носи усещане за нещо лично и специално.</p>
+            <span class="occasion-card__deco" aria-hidden="true">♥</span>
+            <figure class="occasion-card__media">
+              <img src="assets/name-close.png" alt="Персонализирана закачалка с име">
+            </figure>
+          </article>
+          <article class="occasion-card">
+            <h3 class="occasion-card__title">Коледа</h3>
+            <p class="occasion-card__text">Топъл творчески подарък за уютни празнични дни у дома.</p>
+            <span class="occasion-card__deco" aria-hidden="true">♥</span>
+            <figure class="occasion-card__media">
+              <img src="assets/hero-3.png" alt="Топла семейна атмосфера с украса">
+            </figure>
+          </article>
+          <article class="occasion-card">
+            <h3 class="occasion-card__title">Без повод</h3>
+            <p class="occasion-card__text">За онези дни, в които искаш просто да подариш радост.</p>
+            <span class="occasion-card__deco" aria-hidden="true">♥</span>
+            <figure class="occasion-card__media">
+              <img src="assets/color-butterflys-1.png" alt="Цветни пеперуди в детайл">
+            </figure>
+          </article>
         </div>
-        <figure class="june-block__visual">
-          <img src="assets/personal.png" alt="Готова висяща украса в детска стая">
-        </figure>
       </div>
     </section>
 
@@ -575,7 +676,7 @@
         <div class="faq__list">
           <details class="faq-item"><summary>За каква възраст е подходящ?</summary><p>Около 4–10 години, с помощ от възрастен.</p></details>
           <details class="faq-item"><summary>Колко фигурки има?</summary><p>Мини: 3 · Стандарт: 5 · Макси: 7.</p></details>
-          <details class="faq-item"><summary>Може ли с име?</summary><p>Да, в конфигуратора (+3 €).</p></details>
+          <details class="faq-item"><summary>Може ли с име?</summary><p>Да, в конфигуратора (+2,50 €).</p></details>
           <details class="faq-item"><summary>Нужно ли е лепене?</summary><p>Не, фигурките се напасват една в друга и не е нужно да се лепят.</p></details>
           <details class="faq-item"><summary>Идва ли готов за подаряване?</summary><p>Да, идва опакован в кутия с всички необходими материали.</p></details>
         </div>

@@ -75,6 +75,8 @@
     show(appView);
   }
 
+  hide(appView);
+
   function statusBadge(status, label) {
     const cls = STATUS_CLASS[status] || 'status-badge--new';
     return `<span class="status-badge ${cls}">${escapeHtml(label)}</span>`;
@@ -331,11 +333,15 @@
   });
 
   (async function init() {
-    const authed = await checkSession();
-    if (authed) {
-      showApp();
-      await loadOrders();
-    } else {
+    try {
+      const authed = await checkSession();
+      if (authed) {
+        showApp();
+        await loadOrders();
+      } else {
+        showLogin();
+      }
+    } catch {
       showLogin();
     }
   })();

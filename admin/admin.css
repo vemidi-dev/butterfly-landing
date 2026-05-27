@@ -29,11 +29,16 @@ body {
   min-height: 100vh;
 }
 
+/* display:flex on .view--login must not override the hidden attribute */
+[hidden] {
+  display: none !important;
+}
+
 .view {
   min-height: 100vh;
 }
 
-.view--login {
+.view--login:not([hidden]) {
   display: flex;
   align-items: center;
   justify-content: center;

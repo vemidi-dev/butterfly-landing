@@ -69,6 +69,9 @@
 
   const PRESETS = { mini: '3', standard: '5', maxi: '7', small: '3', large: '5' };
 
+  const CHECKOUT_ERROR_MESSAGE =
+    'Възникна проблем при изпращането. Моля, опитай отново или се свържи с нас.';
+
   const form = document.getElementById('configForm');
   const summaryPreviewImg = document.getElementById('summaryPreviewImg');
   const summaryBadges = document.getElementById('summaryBadges');
@@ -87,9 +90,16 @@
   const personalizeToggle = document.getElementById('personalizeToggle');
   const childNameInput = document.getElementById('childName');
   const orderBtn = document.getElementById('orderBtn');
-  const orderModal = document.getElementById('orderModal');
-  const modalSummary = document.getElementById('modalSummary');
-  const modalTotal = document.getElementById('modalTotal');
+  const checkoutModal = document.getElementById('checkoutModal');
+  const checkoutForm = document.getElementById('checkoutForm');
+  const checkoutFormView = document.getElementById('checkoutFormView');
+  const checkoutSuccessView = document.getElementById('checkoutSuccessView');
+  const checkoutSummaryList = document.getElementById('checkoutSummaryList');
+  const checkoutSummaryTotal = document.getElementById('checkoutSummaryTotal');
+  const checkoutErrors = document.getElementById('checkoutErrors');
+  const checkoutSubmitBtn = document.getElementById('checkoutSubmitBtn');
+  const deliveryDetailsLabel = document.getElementById('deliveryDetailsLabel');
+  const deliveryDetailsInput = document.getElementById('deliveryDetails');
   const yearEl = document.getElementById('year');
   const navToggle = document.getElementById('navToggle');
   const mainNav = document.getElementById('mainNav');
@@ -228,7 +238,7 @@
     if (totalPriceEl) totalPriceEl.textContent = formatPrice(total);
   }
 
-  function validate(state) {
+  function validateConfigurator(state) {
     const errors = [];
     if (state.personalize && !state.childName) {
       errors.push('Моля, въведи име на детето за персонализираната закачалка.');
@@ -238,11 +248,241 @@
     return errors;
   }
 
-  function buildModalSummary(state) {
+  function getCheckoutFormData() {
+    const fd = new FormData(checkoutForm);
+    return {
+      customerName: (fd.get('customerName') || '').trim(),
+      customerPhone: (fd.get('customerPhone') || '').trim(),
+      customerEmail: (fd.get('customerEmail') || '').trim(),
+      orderNote: (fd.get('orderNote') || '').trim(),
+      courier: fd.get('courier') || 'econt',
+      deliveryType: fd.get('deliveryType') || 'office',
+      city: (fd.get('city') || '').trim(),
+      deliveryDetails: (fd.get('deliveryDetails') || '').trim(),
+      gdpr: fd.get('gdpr') === 'on',
+    };
+  }
+
+  function clearCheckoutErrors() {
+    if (!checkoutErrors) return;
+    checkoutErrors.hidden = true;
+    checkoutErrors.innerHTML = '';
+    checkoutForm?.querySelectorAll('.checkout-field--error').forEach((el) => {
+      el.classList.remove('checkout-field--error');
+    });
+  }
+
+  function showCheckoutErrors(messages) {
+    if (!checkoutErrors) return;
+    checkoutErrors.innerHTML = messages.map((m) => `<p>${escapeHtml(m)}</p>`).join('');
+    checkoutErrors.hidden = false;
+    checkoutErrors.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function validateCheckout(checkoutData, configState) {
+    const errors = [];
+    const fields = [];
+
+    if (!checkoutData.customerName) {
+      errors.push('Име и фамилия са задължителни.');
+      fields.push('customerName');
+    }
+    if (!checkoutData.customerPhone) {
+      errors.push('Телефонът е задължителен.');
+      fields.push('customerPhone');
+    }
+    if (checkoutData.customerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutData.customerEmail)) {
+      errors.push('Имейлът не е валиден.');
+      fields.push('customerEmail');
+    }
+    if (!checkoutData.city) {
+      errors.push('Градът е задължителен.');
+      fields.push('city');
+    }
+    if (!checkoutData.deliveryDetails) {
+      errors.push(
+        checkoutData.deliveryType === 'address'
+          ? 'Адресът за доставка е задължителен.'
+          : 'Офисът е задължителен.'
+      );
+      fields.push('deliveryDetails');
+    }
+    if (!checkoutData.gdpr) {
+      errors.push('Необходимо е съгласие за обработка на данните.');
+      fields.push('gdpr');
+    }
+    if (configState.personalize && !configState.childName) {
+      errors.push('Моля, въведи име на детето за персонализираната закачалка.');
+    }
+
+    fields.forEach((id) => {
+      const input = checkoutForm?.querySelector(`#${id}`);
+      input?.closest('.checkout-field')?.classList.add('checkout-field--error');
+    });
+
+    return errors;
+  }
+
+  function updateDeliveryDetailsLabel() {
+    if (!deliveryDetailsLabel || !deliveryDetailsInput) return;
+    const type = checkoutForm?.querySelector('input[name="deliveryType"]:checked')?.value || 'office';
+    if (type === 'address') {
+      deliveryDetailsLabel.innerHTML = 'Адрес <span class="checkout-required">*</span>';
+      deliveryDetailsInput.placeholder = 'Улица, номер, вход, етаж…';
+    } else {
+      deliveryDetailsLabel.innerHTML = 'Офис <span class="checkout-required">*</span>';
+      deliveryDetailsInput.placeholder = 'Име или адрес на офис';
+    }
+  }
+
+  function populateCheckoutSummary(state, total) {
     const kit = KITS[state.size];
-    const items = [kit.name, kit.figures, ...kit.items, COLORING_LABELS[state.coloring]];
-    if (state.personalize && state.childName) items.push(`Закачалка с име: ${state.childName}`);
-    return items;
+    const coloring = COLORING[state.coloring] || COLORING.paints;
+    const rows = [
+      { label: 'Комплект', value: `${kit.name} (${kit.figures})` },
+      { label: 'Оцветяване', value: coloring.label },
+      {
+        label: 'Персонализация',
+        value: state.personalize
+          ? state.childName
+            ? `Да — ${state.childName}`
+            : 'Да'
+          : 'Не',
+      },
+    ];
+
+    if (checkoutSummaryList) {
+      checkoutSummaryList.innerHTML = rows
+        .map(
+          (row) =>
+            `<li><strong>${escapeHtml(row.label)}</strong> ${escapeHtml(row.value)}</li>`
+        )
+        .join('');
+    }
+    if (checkoutSummaryTotal) checkoutSummaryTotal.textContent = formatPrice(total);
+  }
+
+  function buildOrderPayload(configState, checkoutData, total) {
+    const kit = KITS[configState.size];
+    return {
+      gdpr: checkoutData.gdpr,
+      note: checkoutData.orderNote || null,
+      customer: {
+        name: checkoutData.customerName,
+        phone: checkoutData.customerPhone,
+        email: checkoutData.customerEmail || null,
+      },
+      delivery: {
+        courier: checkoutData.courier,
+        type: checkoutData.deliveryType,
+        city: checkoutData.city,
+        details: checkoutData.deliveryDetails,
+      },
+      order: {
+        kitSize: configState.size,
+        kitName: kit.name,
+        kitFigures: kit.figures,
+        coloring: configState.coloring,
+        coloringLabel: COLORING_LABELS[configState.coloring],
+        personalize: configState.personalize,
+        childName: configState.childName || null,
+        totalPrice: total,
+        paymentMethod: 'cash_on_delivery',
+      },
+      created_at: new Date().toISOString(),
+    };
+  }
+
+  function openCheckoutModal() {
+    const state = getFormState();
+    const { total } = calculatePrice(state);
+    populateCheckoutSummary(state, total);
+    updateDeliveryDetailsLabel();
+    clearCheckoutErrors();
+
+    checkoutFormView.hidden = false;
+    checkoutSuccessView.hidden = true;
+    checkoutModal.classList.add('is-open');
+    checkoutModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    const firstField = checkoutForm?.querySelector('#customerName');
+    if (firstField) setTimeout(() => firstField.focus(), 100);
+  }
+
+  function closeCheckoutModal() {
+    checkoutModal.classList.remove('is-open');
+    checkoutModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    clearCheckoutErrors();
+    checkoutSubmitBtn.disabled = false;
+    checkoutSubmitBtn.textContent = 'Потвърди поръчката';
+    checkoutFormView.hidden = false;
+    checkoutSuccessView.hidden = true;
+  }
+
+  function showCheckoutSuccess() {
+    checkoutFormView.hidden = true;
+    checkoutSuccessView.hidden = false;
+    checkoutSuccessView.querySelector('[data-close-checkout]')?.focus();
+  }
+
+  async function submitOrder(event) {
+    event.preventDefault();
+    clearCheckoutErrors();
+
+    const configState = getFormState();
+    const configErrorsList = validateConfigurator(configState);
+    const checkoutData = getCheckoutFormData();
+    const checkoutErrorsList = validateCheckout(checkoutData, configState);
+    const allErrors = [...configErrorsList, ...checkoutErrorsList];
+
+    if (allErrors.length) {
+      showCheckoutErrors(allErrors);
+      if (configState.personalize && !configState.childName) {
+        closeCheckoutModal();
+        showErrors(configErrorsList);
+        childNameInput?.focus();
+      }
+      return;
+    }
+
+    const { total } = calculatePrice(configState);
+    const payload = buildOrderPayload(configState, checkoutData, total);
+
+    checkoutSubmitBtn.disabled = true;
+    checkoutSubmitBtn.textContent = 'Изпращане…';
+
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.ok) {
+        const serverErrors = Array.isArray(data.errors)
+          ? data.errors
+          : data.error
+            ? [data.error]
+            : [CHECKOUT_ERROR_MESSAGE];
+        showCheckoutErrors(serverErrors);
+        return;
+      }
+
+      showCheckoutSuccess();
+      checkoutForm.reset();
+      checkoutForm.querySelector('input[name="courier"][value="econt"]').checked = true;
+      checkoutForm.querySelector('input[name="deliveryType"][value="office"]').checked = true;
+      updateDeliveryDetailsLabel();
+    } catch {
+      showCheckoutErrors([CHECKOUT_ERROR_MESSAGE]);
+    } finally {
+      checkoutSubmitBtn.disabled = false;
+      checkoutSubmitBtn.textContent = 'Потвърди поръчката';
+    }
   }
 
   function applyPreset(preset) {
@@ -280,33 +520,31 @@
 
   orderBtn.addEventListener('click', () => {
     const state = getFormState();
-    const errors = validate(state);
+    const errors = validateConfigurator(state);
     if (errors.length) {
       showErrors(errors);
       if (state.personalize && !state.childName) childNameInput?.focus();
       return;
     }
     clearErrors();
-    const { total } = calculatePrice(state);
-    modalTotal.textContent = `Общо: ${formatPrice(total)}`;
-    modalSummary.innerHTML = buildModalSummary(state).map((l) => `<li>${escapeHtml(l)}</li>`).join('');
-    orderModal.classList.add('is-open');
-    orderModal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    openCheckoutModal();
   });
 
-  document.querySelectorAll('[data-close-modal]').forEach((el) => {
-    el.addEventListener('click', () => {
-      orderModal.classList.remove('is-open');
-      orderModal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    });
+  checkoutForm?.addEventListener('submit', submitOrder);
+
+  checkoutForm?.querySelectorAll('input[name="deliveryType"]').forEach((input) => {
+    input.addEventListener('change', updateDeliveryDetailsLabel);
+  });
+
+  checkoutForm?.addEventListener('input', clearCheckoutErrors);
+
+  document.querySelectorAll('[data-close-checkout]').forEach((el) => {
+    el.addEventListener('click', closeCheckoutModal);
   });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && orderModal.classList.contains('is-open')) {
-      orderModal.classList.remove('is-open');
-      document.body.style.overflow = '';
+    if (e.key === 'Escape' && checkoutModal?.classList.contains('is-open')) {
+      closeCheckoutModal();
     }
   });
 
@@ -327,6 +565,7 @@
 
   setFieldExpanded(nameField, false);
   updateSummary();
+  updateDeliveryDetailsLabel();
 
   const backToTop = document.getElementById('backToTop');
   const SCROLL_SHOW_BACK_TO_TOP = 300;

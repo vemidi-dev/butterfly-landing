@@ -746,16 +746,116 @@
     </div>
   </footer>
 
-  <div class="modal" id="orderModal" role="dialog" aria-hidden="true">
-    <div class="modal__backdrop" data-close-modal></div>
-    <div class="modal__content">
-      <button class="modal__close" data-close-modal aria-label="Затвори">&times;</button>
-      <h3 id="modalTitle">Благодарим!</h3>
-      <p id="modalMessage">Твоят комплект „Вълшебни пеперуди“ е готов за поръчка.</p>
-      <p class="modal__accent">магията започва тук</p>
-      <p class="modal__total" id="modalTotal"></p>
-      <ul class="modal__summary" id="modalSummary"></ul>
-      <button class="btn btn--primary btn--block" data-close-modal>Затвори</button>
+  <div class="modal modal--checkout" id="checkoutModal" role="dialog" aria-labelledby="checkoutTitle" aria-hidden="true">
+    <div class="modal__backdrop" data-close-checkout></div>
+    <div class="modal__content modal__content--checkout">
+      <button type="button" class="modal__close" data-close-checkout aria-label="Затвори">&times;</button>
+
+      <div class="checkout-view" id="checkoutFormView">
+        <h2 class="checkout__title" id="checkoutTitle">Завърши поръчката</h2>
+        <p class="checkout__lead">Попълни данните за доставка. Плащането е при получаване (наложен платеж).</p>
+
+        <div class="checkout__layout">
+          <form class="checkout__form" id="checkoutForm" novalidate>
+            <fieldset class="checkout-section">
+              <legend class="checkout-section__title">Данни на клиента</legend>
+              <div class="checkout-field">
+                <label for="customerName">Име и фамилия <span class="checkout-required">*</span></label>
+                <input type="text" id="customerName" name="customerName" autocomplete="name" required maxlength="120">
+              </div>
+              <div class="checkout-field">
+                <label for="customerPhone">Телефон <span class="checkout-required">*</span></label>
+                <input type="tel" id="customerPhone" name="customerPhone" autocomplete="tel" required maxlength="30" placeholder="08…">
+              </div>
+              <div class="checkout-field">
+                <label for="customerEmail">Имейл <span class="checkout-optional">(по желание)</span></label>
+                <input type="email" id="customerEmail" name="customerEmail" autocomplete="email" maxlength="120">
+              </div>
+              <div class="checkout-field">
+                <label for="orderNote">Бележка към поръчката</label>
+                <textarea id="orderNote" name="orderNote" rows="3" maxlength="500" placeholder="Допълнителни указания…"></textarea>
+              </div>
+            </fieldset>
+
+            <fieldset class="checkout-section">
+              <legend class="checkout-section__title">Доставка</legend>
+              <div class="checkout-field">
+                <span class="checkout-field__label">Куриер <span class="checkout-required">*</span></span>
+                <div class="checkout-options checkout-options--inline" role="radiogroup" aria-label="Куриер">
+                  <label class="checkout-option">
+                    <input type="radio" name="courier" value="econt" checked>
+                    <span class="checkout-option__box">Еконт</span>
+                  </label>
+                  <label class="checkout-option">
+                    <input type="radio" name="courier" value="speedy">
+                    <span class="checkout-option__box">Спиди</span>
+                  </label>
+                </div>
+              </div>
+              <div class="checkout-field">
+                <span class="checkout-field__label">Тип доставка <span class="checkout-required">*</span></span>
+                <div class="checkout-options checkout-options--inline" role="radiogroup" aria-label="Тип доставка">
+                  <label class="checkout-option">
+                    <input type="radio" name="deliveryType" value="office" checked>
+                    <span class="checkout-option__box">До офис</span>
+                  </label>
+                  <label class="checkout-option">
+                    <input type="radio" name="deliveryType" value="address">
+                    <span class="checkout-option__box">До адрес</span>
+                  </label>
+                </div>
+              </div>
+              <div class="checkout-field">
+                <label for="city">Град <span class="checkout-required">*</span></label>
+                <input type="text" id="city" name="city" required maxlength="80" autocomplete="address-level2">
+              </div>
+              <div class="checkout-field">
+                <label for="deliveryDetails" id="deliveryDetailsLabel">Офис <span class="checkout-required">*</span></label>
+                <input type="text" id="deliveryDetails" name="deliveryDetails" required maxlength="200" placeholder="Име или адрес на офис">
+              </div>
+            </fieldset>
+
+            <fieldset class="checkout-section checkout-section--payment">
+              <legend class="checkout-section__title">Плащане</legend>
+              <div class="checkout-payment">
+                <p class="checkout-payment__method">Наложен платеж</p>
+                <p class="checkout-payment__hint">Плащането се извършва при получаване.</p>
+              </div>
+            </fieldset>
+
+            <div class="checkout-field checkout-field--gdpr">
+              <label class="checkout-check">
+                <input type="checkbox" name="gdpr" id="gdprConsent" required>
+                <span>Съгласявам се данните ми да бъдат използвани за обработка на поръчката. <span class="checkout-required">*</span></span>
+              </label>
+            </div>
+
+            <div class="checkout-errors" id="checkoutErrors" role="alert" hidden></div>
+
+            <button type="submit" class="btn btn--primary btn--block btn--lg checkout-submit" id="checkoutSubmitBtn">
+              Потвърди поръчката
+            </button>
+          </form>
+
+          <aside class="checkout-summary" id="checkoutSummary" aria-live="polite">
+            <h3 class="checkout-summary__title">Обобщение</h3>
+            <ul class="checkout-summary__list" id="checkoutSummaryList"></ul>
+            <p class="checkout-summary__total">
+              <span>Общо</span>
+              <strong id="checkoutSummaryTotal">—</strong>
+            </p>
+            <p class="checkout-summary__payment">Плащане: наложен платеж</p>
+          </aside>
+        </div>
+      </div>
+
+      <div class="checkout-view checkout-view--success" id="checkoutSuccessView" hidden>
+        <div class="checkout-success">
+          <h2 class="checkout-success__title">Благодарим!</h2>
+          <p class="checkout-success__text">Получихме твоята поръчка и ще се свържем с теб за потвърждение.</p>
+          <button type="button" class="btn btn--primary btn--block" data-close-checkout>Затвори</button>
+        </div>
+      </div>
     </div>
   </div>
 

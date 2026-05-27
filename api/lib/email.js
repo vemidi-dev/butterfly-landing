@@ -77,20 +77,41 @@ function buildOrderEmailContent(order, body) {
   return { subject, html, text };
 }
 
+function parseNotifyRecipients(value) {
+  return String(value || '')
+    .split(/[,;]/)
+    .map((e) => e.trim())
+    .filter((e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+}
+
+function parseResendError(responseText) {
+  if (!responseText) return '';
+  try {
+    const data = JSON.parse(responseText);
+    if (typeof data.message === 'string') return data.message;
+    if (data.error && typeof data.error.message === 'string') return data.error.message;
+    if (typeof data.error === 'string') return data.error;
+  } catch {
+    /* plain text */
+  }
+  return String(responseText).slice(0, 500);
+}
+
 async function sendOrderEmail(order, body) {
   const resendKey = getEnv('RESEND_API_KEY');
-  const notifyEmail = getEnv('ORDER_NOTIFY_EMAIL');
+  const notifyRaw = getEnv('ORDER_NOTIFY_EMAIL');
   const fromEmail = getEnv('FROM_EMAIL');
+  const toList = parseNotifyRecipients(notifyRaw);
 
-  if (!resendKey || !notifyEmail || !fromEmail) {
+  if (!resendKey || !fromEmail || toList.length === 0) {
     const missing = [];
     if (!resendKey) missing.push('RESEND_API_KEY');
-    if (!notifyEmail) missing.push('ORDER_NOTIFY_EMAIL');
     if (!fromEmail) missing.push('FROM_EMAIL');
-    console.warn('[orders] Resend notification skipped — missing env:', missing.join(', '), {
+    if (!notifyRaw || toList.length === 0) missing.push('ORDER_NOTIFY_EMAIL');
+    console.warn('[orders] Resend notification skipped — missing or invalid env:', missing.join(', '), {
       orderId: order.id,
     });
-    return { sent: false, skipped: true, reason: 'missing_env' };
+    return { sent: false, skipped: true, reason: 'missing_env', missing };
   }
 
   const { subject, html, text } = buildOrderEmailContent(order, body);
@@ -100,10 +121,11 @@ async function sendOrderEmail(order, body) {
     headers: {
       Authorization: `Bearer ${resendKey}`,
       'Content-Type': 'application/json',
+      'User-Agent': 'butterfly-landing/1.0 (VeMiDi crafts)',
     },
     body: JSON.stringify({
       from: fromEmail,
-      to: [notifyEmail],
+      to: toList,
       subject,
       html,
       text,
@@ -112,9 +134,18 @@ async function sendOrderEmail(order, body) {
 
   if (!response.ok) {
     const responseText = await response.text();
+    const resendMessage = parseResendError(responseText);
+    console.error('[orders] Resend API rejected email', {
+      orderId: order.id,
+      status: response.status,
+      from: fromEmail.replace(/(.{2}).+(@.+)/, '$1***$2'),
+      to: toList.map((e) => e.replace(/(.{2}).+(@.+)/, '$1***$2')),
+      message: resendMessage,
+    });
     const err = new Error(`Resend failed: ${response.status}`);
     err.status = response.status;
     err.details = responseText;
+    err.resendMessage = resendMessage;
     throw err;
   }
 
@@ -122,7 +153,7 @@ async function sendOrderEmail(order, body) {
   console.info('[orders] Resend notification sent', {
     orderId: order.id,
     resendId: result.id || null,
-    to: notifyEmail,
+    to: toList,
   });
   return { sent: true, resendId: result.id || null };
 }

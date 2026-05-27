@@ -99,16 +99,34 @@ module.exports = async function handler(req, res) {
         orderId: saved.id,
         message: emailErr.message,
         status: emailErr.status || null,
+        resendMessage: emailErr.resendMessage || null,
       });
-      emailResult = { sent: false, skipped: false, reason: 'send_failed' };
+      emailResult = {
+        sent: false,
+        skipped: false,
+        reason: 'send_failed',
+        status: emailErr.status || null,
+      };
     }
 
-    return json(res, 201, {
+    const payload = {
       ok: true,
       orderId: saved.id,
       message: 'Поръчката е записана успешно.',
       emailSent: Boolean(emailResult.sent),
-    });
+    };
+    if (!emailResult.sent) {
+      payload.emailReason = emailResult.reason || 'unknown';
+      if (emailResult.reason === 'missing_env') {
+        payload.emailHint =
+          'Имейл env липсва на сървъра (RESEND_API_KEY, FROM_EMAIL, ORDER_NOTIFY_EMAIL).';
+      } else if (emailResult.reason === 'send_failed') {
+        payload.emailHint =
+          'Resend отхвърли имейла. Провери верифициран домейн и FROM_EMAIL в Vercel.';
+      }
+    }
+
+    return json(res, 201, payload);
   } catch (err) {
     console.error('[orders] Order API error:', err.message);
     const mapped = mapSupabaseError(res, err);

@@ -138,11 +138,24 @@ Supabase service role key се използва **само** в serverless funct
 
 ### Имейл notification
 
-1. Задай `RESEND_API_KEY`, `ORDER_NOTIFY_EMAIL`, `FROM_EMAIL` в env.
-2. Направи тестова поръчка.
-3. Провери пощата на `ORDER_NOTIFY_EMAIL`.
-4. В Network tab на отговора от `POST /api/orders` виж `emailSent`.
-5. При проблем: Vercel → Project → Logs → Functions → `api/orders`.
+1. Задай в Vercel (**Production** + Redeploy):
+   - `RESEND_API_KEY` — от [Resend](https://resend.com) → API Keys
+   - `ORDER_NOTIFY_EMAIL` — твоят имейл за известия (само валиден адрес)
+   - `FROM_EMAIL` — **от верифициран домейн**, напр. `VeMiDi crafts <orders@yourdomain.com>`
+2. В Resend → **Domains** добави и верифицирай домейна (DNS записи).  
+   **Не** ползвай `@gmail.com` / `@yahoo.com` като `FROM_EMAIL`.
+3. Направи тестова поръчка.
+4. В Network → `POST /api/orders` → виж `emailSent` и при проблем `emailHint`.
+5. При `emailSent: false`: Vercel → **Logs** → `api/orders` (търси `Resend API rejected`).
+
+**Чести причини без имейл:**
+
+| Проблем | Решение |
+|--------|---------|
+| Env само за Preview, не Production | Задай за Production и **Redeploy** |
+| `FROM_EMAIL` не е от верифициран домейн | Верифицирай домейн в Resend |
+| `onboarding@resend.dev` + друг получател | Работи само до имейла на Resend акаунта; иначе верифицирай домейн |
+| Грешен `ORDER_NOTIFY_EMAIL` | Провери правописа, без интервали |
 
 ### Смяна на статус
 

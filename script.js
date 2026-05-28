@@ -408,7 +408,7 @@
 
     try {
       const response = await fetch(
-        `/api/couriers/${encodeURIComponent(courier)}/offices?city=${encodeURIComponent(city)}`
+        `/api/couriers?courier=${encodeURIComponent(courier)}&city=${encodeURIComponent(city)}`
       );
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.ok) {

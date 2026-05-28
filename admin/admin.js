@@ -231,7 +231,7 @@
   }
 
   async function checkSession() {
-    const res = await api('/api/admin/session');
+    const res = await api('/api/admin?action=session');
     const data = await res.json().catch(() => ({}));
     return Boolean(data.authenticated);
   }
@@ -251,7 +251,8 @@
     if (q) params.set('q', q);
 
     try {
-      const res = await api(`/api/admin/orders?${params.toString()}`);
+      const query = params.toString();
+      const res = await api(`/api/admin?action=orders${query ? `&${query}` : ''}`);
       const data = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
@@ -281,7 +282,7 @@
     loginSubmit.disabled = true;
 
     try {
-      const res = await api('/api/admin/login', {
+      const res = await api('/api/admin?action=login', {
         method: 'POST',
         body: JSON.stringify({ password: loginPassword.value }),
       });
@@ -304,7 +305,7 @@
 
   logoutBtn.addEventListener('click', async () => {
     setStoredToken('');
-    await api('/api/admin/login', { method: 'DELETE' });
+    await api('/api/admin?action=login', { method: 'DELETE' });
     showLogin();
   });
 
@@ -330,7 +331,7 @@
     setError(listError, '');
 
     try {
-      const res = await api(`/api/admin/orders?id=${encodeURIComponent(activeOrderId)}`, {
+      const res = await api(`/api/admin?action=orders&id=${encodeURIComponent(activeOrderId)}`, {
         method: 'PATCH',
         body: JSON.stringify({ status: dialogStatus.value }),
       });

@@ -52,11 +52,11 @@ URL: **`/admin`** (напр. `https://your-site.vercel.app/admin`)
 
 | Endpoint | Метод | Описание |
 |----------|-------|----------|
-| `/api/admin/login` | POST | Вход с `{ "password": "..." }` |
-| `/api/admin/login` | DELETE | Изход |
-| `/api/admin/session` | GET | Проверка на сесията |
-| `/api/admin/orders` | GET | Списък (`?status=`, `?q=`) |
-| `/api/admin/orders?id=UUID` | PATCH | Смяна на статус `{ "status": "confirmed" }` |
+| `/api/admin?action=login` | POST | Вход с `{ "password": "..." }` |
+| `/api/admin?action=login` | DELETE | Изход |
+| `/api/admin?action=session` | GET | Проверка на сесията |
+| `/api/admin?action=orders` | GET | Списък (`?status=`, `?q=`) |
+| `/api/admin?action=orders&id=UUID` | PATCH | Смяна на статус `{ "status": "confirmed" }` |
 
 Supabase service role key се използва **само** в serverless functions, не в браузъра.
 
@@ -135,13 +135,9 @@ Supabase service role key се използва **само** в serverless funct
 
 Имейлът съдържа: клиент, телефон, имейл, комплект, оцветяване, персонализация, име, доставка, куриер, обща цена, бележка.
 
-### `GET /api/couriers/econt/offices?city=София`
+### `GET /api/couriers?courier=econt&city=София`
 
-Прокси endpoint за търсене на офиси на Еконт по град. Ключовете остават само в backend.
-
-### `GET /api/couriers/speedy/offices?city=София`
-
-Прокси endpoint за търсене на офиси на Спиди по град. Frontend-ът получава нормализиран формат:
+Прокси endpoint за търсене на офиси на Еконт/Спиди по град. Ключовете остават само в backend. Frontend-ът получава нормализиран формат:
 
 ```json
 [
@@ -199,7 +195,8 @@ Supabase service role key се използва **само** в serverless funct
 - `script.js` — конфигуратор и checkout
 - `admin/` — админ UI (`index.html`, `admin.css`, `admin.js`)
 - `api/orders.js` — създаване на поръчка + имейл
-- `api/admin/` — login, session, orders
+- `api/admin.js` — login, session, orders (single endpoint)
+- `api/couriers.js` — courier office lookup (single endpoint)
 - `api/lib/` — споделена логика (Supabase, auth, email)
 - `supabase/schema.sql` — таблица `orders`
 - `assets/` — изображения

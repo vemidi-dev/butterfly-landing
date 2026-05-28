@@ -151,6 +151,10 @@ Supabase service role key се използва **само** в serverless funct
 ]
 ```
 
+Debug (само non-production, или production с `ALLOW_COURIER_DEBUG=1`):
+
+`/api/couriers?courier=econt&city=Перник&debug=1`
+
 ## Тестване
 
 ### Нова поръчка

@@ -19,6 +19,7 @@ function buildEmailSubject(order, body) {
 
 function buildOrderEmailContent(order, body) {
   const delivery = body.delivery || {};
+  const office = delivery.office || {};
   const orderData = body.order || {};
   const customer = body.customer || {};
 
@@ -35,6 +36,9 @@ function buildOrderEmailContent(order, body) {
   const totalFormatted = formatOrderPriceEuro(order.total_price);
   const note = String(body.note || order.note || '').trim();
   const subject = buildEmailSubject(order, body);
+  const officeId = office.id || delivery.officeId || order.office_id || '—';
+  const officeName = office.name || delivery.officeName || order.office_name || '—';
+  const officeAddress = office.address || delivery.officeAddress || order.office_address || '—';
 
   const rows = [
     ['ID на поръчката', order.id],
@@ -50,6 +54,9 @@ function buildOrderEmailContent(order, body) {
     ['Куриер', courierLabel],
     ['Тип доставка', deliveryLabel],
     ['Град', delivery.city || order.city],
+    ['Офис ID / код', officeId],
+    ['Име на офис', officeName],
+    ['Адрес на офис', officeAddress],
     ['Офис/адрес', delivery.details || order.delivery_details],
     ['Обща цена', totalFormatted],
     ['Бележка', note || '—'],

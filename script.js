@@ -496,6 +496,9 @@
         city: checkoutData.city,
         details: checkoutData.deliveryDetails,
         office: checkoutData.office,
+        officeId: checkoutData.office?.id || null,
+        officeName: checkoutData.office?.name || null,
+        officeAddress: checkoutData.office?.address || null,
       },
       order: {
         kitSize: configState.size,

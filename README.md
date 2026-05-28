@@ -79,6 +79,11 @@ Supabase service role key се използва **само** в serverless funct
 - Плащане: **само наложен платеж**
 - GDPR съгласие (задължително)
 
+При доставка до офис в поръчката се записват отделни полета:
+- `office_id`
+- `office_name`
+- `office_address`
+
 Поръчката се изпраща с `POST /api/orders`.
 
 ## Environment variables (Vercel)
@@ -112,7 +117,7 @@ Supabase service role key се използва **само** в serverless funct
 
 ## Supabase
 
-Изпълни `supabase/schema.sql` в SQL Editor (таблица `orders` с колона `status`).
+Изпълни `supabase/schema.sql` в SQL Editor (таблица `orders` + статус + отделни полета за избран офис: `office_id`, `office_name`, `office_address`).
 
 ## API
 

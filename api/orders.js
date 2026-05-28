@@ -28,6 +28,11 @@ function validatePayload(body) {
   if (!['office', 'address'].includes(delivery.type)) errors.push('Избери тип доставка.');
   if (!String(delivery.city || '').trim()) errors.push('Градът е задължителен.');
   if (!String(delivery.details || '').trim()) errors.push('Офисът или адресът е задължителен.');
+  if (delivery.type === 'office') {
+    const office = delivery.office || {};
+    if (!String(office.id || delivery.officeId || '').trim()) errors.push('Липсва избран офис.');
+    if (!String(office.name || delivery.officeName || '').trim()) errors.push('Липсва име на офис.');
+  }
   if (!body.gdpr) errors.push('Необходимо е съгласие за обработка на данните.');
 
   const kitSize = String(order.kitSize || '');
@@ -48,6 +53,7 @@ function validatePayload(body) {
 function buildOrderRecord(body) {
   const customer = body.customer || {};
   const delivery = body.delivery || {};
+  const office = delivery.office || {};
   const order = body.order || {};
 
   return {
@@ -66,6 +72,18 @@ function buildOrderRecord(body) {
     delivery_type: delivery.type || null,
     city: String(delivery.city || '').trim(),
     delivery_details: String(delivery.details || '').trim(),
+    office_id:
+      delivery.type === 'office'
+        ? String(office.id || delivery.officeId || '').trim() || null
+        : null,
+    office_name:
+      delivery.type === 'office'
+        ? String(office.name || delivery.officeName || '').trim() || null
+        : null,
+    office_address:
+      delivery.type === 'office'
+        ? String(office.address || delivery.officeAddress || '').trim() || null
+        : null,
     payment_method: 'cash_on_delivery',
     note: String(body.note || '').trim() || null,
     status: 'new',

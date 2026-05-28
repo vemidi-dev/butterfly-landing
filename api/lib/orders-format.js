@@ -37,6 +37,7 @@ function mapOrderRow(row) {
   const raw = row.raw_payload || {};
   const orderData = raw.order || {};
   const delivery = raw.delivery || {};
+  const office = delivery.office || {};
 
   const kitSize = String(row.kit_size || orderData.kitSize || '');
   const coloringKey = row.coloring || orderData.coloring || '';
@@ -61,6 +62,9 @@ function mapOrderRow(row) {
     deliveryType: DELIVERY_LABELS[row.delivery_type] || row.delivery_type || '—',
     city: row.city || '',
     deliveryDetails: row.delivery_details || '',
+    officeId: row.office_id || office.id || '',
+    officeName: row.office_name || office.name || '',
+    officeAddress: row.office_address || office.address || '',
     note: row.note || raw.note || '',
     totalPrice: row.total_price,
     totalPriceFormatted: formatOrderPrice(row.total_price, row.currency),

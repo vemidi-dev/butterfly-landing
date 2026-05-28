@@ -19,6 +19,9 @@ create table if not exists orders (
   delivery_type text,
   city text,
   delivery_details text,
+  office_id text,
+  office_name text,
+  office_address text,
   payment_method text default 'cash_on_delivery',
   note text,
   raw_payload jsonb
@@ -26,3 +29,7 @@ create table if not exists orders (
 
 create index if not exists orders_created_at_idx on orders (created_at desc);
 create index if not exists orders_status_idx on orders (status);
+
+alter table orders add column if not exists office_id text;
+alter table orders add column if not exists office_name text;
+alter table orders add column if not exists office_address text;

@@ -88,6 +88,7 @@ function getCourierConfig(courier) {
     apiBaseUrl: getEnv(`${prefix}_API_BASE_URL`),
     sitesPath: getEnv(`${prefix}_SITES_PATH`) || '/location/site/',
     officesPath: getEnv(`${prefix}_OFFICES_PATH`) || '/location/office/',
+    citiesUrl: getEnv(`${prefix}_CITIES_API_URL`),
   };
 }
 
@@ -109,6 +110,18 @@ function joinUrl(baseUrl, path) {
   const base = String(baseUrl || '').replace(/\/+$/, '');
   const suffix = String(path || '').replace(/^\/+/, '');
   return `${base}/${suffix}`;
+}
+
+function isEcontServicesBase(url) {
+  return /econt\.com\/(?:ee\/)?services\/?$/.test(String(url || ''));
+}
+
+function getEcontMethodUrl(config, methodName) {
+  if (!config.officesUrl) return '';
+  if (isEcontServicesBase(config.officesUrl)) {
+    return joinUrl(config.officesUrl, `Nomenclatures/NomenclaturesService.${methodName}.json`);
+  }
+  return config.officesUrl;
 }
 
 async function requestCourierApi(url, { method = 'GET', headers = {}, body } = {}, debug) {
@@ -178,6 +191,8 @@ function pickArrayPayload(payload) {
 }
 
 function normalizeOffice(raw, courier) {
+  const addressObj = raw.address && typeof raw.address === 'object' ? raw.address : {};
+  const cityObj = addressObj.city && typeof addressObj.city === 'object' ? addressObj.city : {};
   const addressFromParts = [raw.quarter, raw.streetName, raw.street, raw.num].filter(Boolean).join(' ');
   const id =
     raw.officeCode || raw.officeId || raw.id || raw.code || raw.siteId || raw.office_id || raw.pk;
@@ -191,15 +206,25 @@ function normalizeOffice(raw, courier) {
     raw.label ||
     'Офис';
   const address =
-    raw.address ||
+    (typeof raw.address === 'string' ? raw.address : '') ||
     raw.addressFull ||
     raw.fullAddress ||
     raw.addressString ||
     raw.addressLine ||
     raw.address_full ||
+    addressObj.fullAddress ||
+    [addressObj.street, addressObj.num].filter(Boolean).join(' ') ||
     addressFromParts ||
     '';
-  const city = raw.city || raw.cityName || raw.locality || raw.town || raw.municipality || '';
+  const city =
+    raw.city ||
+    raw.cityName ||
+    raw.locality ||
+    raw.town ||
+    raw.municipality ||
+    cityObj.name ||
+    cityObj.nameEn ||
+    '';
 
   if (!id && !name && !address) return null;
   return {
@@ -211,8 +236,27 @@ function normalizeOffice(raw, courier) {
   };
 }
 
-async function resolveEcontCity(city) {
-  return city;
+async function resolveEcontCity(city, config) {
+  const citiesUrl = config.citiesUrl || getEcontMethodUrl(config, 'getCities');
+  if (!citiesUrl || citiesUrl === config.officesUrl) return city;
+
+  const payload = await requestCourierApi(
+    citiesUrl,
+    {
+      method: 'POST',
+      headers: buildHeaders(config, true),
+      body: JSON.stringify({ countryCode: 'BGR', name: city }),
+    },
+    null
+  );
+  const cities = pickArrayPayload(payload);
+  const normalizedInput = city.toLowerCase();
+  const matched =
+    cities.find((c) => String(c.name || '').toLowerCase() === normalizedInput) ||
+    cities.find((c) => String(c.nameEn || '').toLowerCase() === normalizedInput) ||
+    cities.find((c) => String(c.name || '').toLowerCase().includes(normalizedInput));
+
+  return matched?.id || matched?.cityId || matched?.cityID || city;
 }
 
 async function resolveSpeedyCity(city, config) {
@@ -267,22 +311,53 @@ async function fetchEcontOffices(city, options = {}) {
     throw err;
   }
 
-  const cityToken = config.cityResolveUrl
-    ? city
-    : await resolveEcontCity(city); // explicit hook point for future econt city resolver
+  let cityToken = city;
+  try {
+    cityToken = await resolveEcontCity(city, config);
+  } catch {
+    cityToken = city;
+  }
   const method = config.officesMethod;
-  let url = config.officesUrl;
-  const request = { method, headers: buildHeaders(config, method !== 'GET') };
-  if (method === 'GET') {
-    const u = new URL(config.officesUrl);
-    u.searchParams.set(config.cityParam, cityToken);
-    url = u.toString();
+  const isNomenclature = isEcontServicesBase(config.officesUrl);
+  let payload = {};
+  let rawItems = [];
+
+  if (isNomenclature) {
+    const url = getEcontMethodUrl(config, 'getOffices');
+    const candidates = [
+      { countryCode: 'BGR', cityID: cityToken },
+      { countryCode: 'BGR', cityId: cityToken },
+      { countryCode: 'BGR', city: { id: cityToken } },
+      { countryCode: 'BGR', city: { name: city } },
+      { countryCode: 'BGR' },
+    ];
+    for (const body of candidates) {
+      payload = await requestCourierApi(
+        url,
+        {
+          method: 'POST',
+          headers: buildHeaders(config, true),
+          body: JSON.stringify(body),
+        },
+        debug
+      );
+      rawItems = pickArrayPayload(payload);
+      if (rawItems.length) break;
+    }
   } else {
-    request.body = JSON.stringify({ [config.cityParam]: cityToken });
+    let url = config.officesUrl;
+    const request = { method, headers: buildHeaders(config, method !== 'GET') };
+    if (method === 'GET') {
+      const u = new URL(config.officesUrl);
+      u.searchParams.set(config.cityParam, cityToken);
+      url = u.toString();
+    } else {
+      request.body = JSON.stringify({ [config.cityParam]: cityToken });
+    }
+    payload = await requestCourierApi(url, request, debug);
+    rawItems = pickArrayPayload(payload);
   }
 
-  const payload = await requestCourierApi(url, request, debug);
-  const rawItems = pickArrayPayload(payload);
   if (debug) {
     debug.rawCount = rawItems.length;
     debug.firstRawItem = rawItems.length ? scrubSensitive(rawItems[0]) : null;

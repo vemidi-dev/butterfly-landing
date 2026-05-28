@@ -102,6 +102,7 @@ Supabase service role key се използва **само** в serverless funct
 | `ECONT_OFFICES_METHOD` | Метод за Еконт API (`GET` или `POST`, по подразбиране `GET`) |
 | `ECONT_CITY_PARAM` | Име на параметъра за град (по подразбиране `city`) |
 | `ECONT_API_KEY` / `ECONT_USERNAME` + `ECONT_PASSWORD` | Достъп до Еконт API (според интеграцията) |
+| `ECONT_CITIES_API_URL` | (Опционално) endpoint за city lookup при Еконт |
 | `SPEEDY_OFFICES_API_URL` | URL към API за офиси на Спиди (server-to-server) |
 | `SPEEDY_OFFICES_METHOD` | Метод за Спиди API (`GET` или `POST`, по подразбиране `GET`) |
 | `SPEEDY_CITY_PARAM` | Име на параметъра за град (по подразбиране `city`) |

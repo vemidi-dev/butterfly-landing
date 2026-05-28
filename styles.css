@@ -2401,6 +2401,26 @@ label { margin-right: 0; }
   object-fit: contain;
 }
 .site-footer__tagline { font-size: 1.3rem; color: var(--green-muted); }
+.site-footer__links {
+  margin: 0.8rem auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem 1rem;
+  max-width: 840px;
+}
+.site-footer__links a {
+  font-size: 0.86rem;
+  color: var(--text);
+  opacity: 0.82;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+.site-footer__links a:hover,
+.site-footer__links a:focus-visible {
+  opacity: 1;
+  border-color: rgba(90, 70, 54, 0.45);
+}
 .site-footer__copy { font-size: 0.8rem; opacity: 0.7; margin-top: 0.2rem; }
 
 /* Back to top */

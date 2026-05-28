@@ -41,13 +41,15 @@ module.exports = async function handler(req, res) {
     return json(res, 200, payload);
   } catch (err) {
     if (err.code === 'MISSING_COURIER_ENV') {
-      return json(res, 500, {
+      const payload = {
         ok: false,
         error:
           courier === 'econt'
             ? 'Липсва конфигурация за Еконт API.'
             : 'Липсва конфигурация за Спиди API.',
-      });
+      };
+      if (debug && err.debugInfo) payload.debug = err.debugInfo;
+      return json(res, 500, payload);
     }
     console.error('[couriers]', {
       courier,

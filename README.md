@@ -101,6 +101,10 @@ Supabase service role key се използва **само** в serverless funct
 | `SPEEDY_OFFICES_METHOD` | Метод за Спиди API (`GET` или `POST`, по подразбиране `GET`) |
 | `SPEEDY_CITY_PARAM` | Име на параметъра за град (по подразбиране `city`) |
 | `SPEEDY_API_KEY` / `SPEEDY_USERNAME` + `SPEEDY_PASSWORD` | Достъп до Спиди API (според интеграцията) |
+| `SPEEDY_API_BASE_URL` | Base URL за Speedy REST API (native mode) |
+| `SPEEDY_SITES_PATH` | Path за site lookup (по подразбиране `/location/site/`) |
+| `SPEEDY_OFFICES_PATH` | Path за offices lookup (по подразбиране `/location/office/`) |
+| `ALLOW_COURIER_DEBUG` | Позволява `debug=1` в production при стойност `1` |
 
 Виж `.env.example` за шаблон. **Не комитвай** реални ключове.
 
@@ -154,6 +158,12 @@ Supabase service role key се използва **само** в serverless funct
 Debug (само non-production, или production с `ALLOW_COURIER_DEBUG=1`):
 
 `/api/couriers?courier=econt&city=Перник&debug=1`
+
+Speedy native flow (когато няма `SPEEDY_OFFICES_API_URL`):
+- търси населено място по име;
+- извлича `siteId`;
+- зарежда офисите за това `siteId`;
+- връща ги в същия нормализиран формат.
 
 ## Тестване
 

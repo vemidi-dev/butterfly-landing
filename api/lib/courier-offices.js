@@ -4,37 +4,20 @@ const SHAPE_KEYS = [
   'offices',
   'officeList',
   'office_list',
-  'data',
-  'results',
-  'objects',
-  'sites',
-  'items',
-  'rows',
   'result',
+  'results',
+  'rows',
+  'sites',
   'list',
+  'items',
+  'data',
+  'objects',
   'officesResult',
 ];
 
 function getCityFromReq(req) {
   const url = new URL(req.url, 'http://localhost');
   return String(url.searchParams.get('city') || '').trim();
-}
-
-function getCourierConfig(courier) {
-  const prefix = courier.toUpperCase();
-  return {
-    courier,
-    officesUrl: getEnv(`${prefix}_OFFICES_API_URL`),
-    method: getEnv(`${prefix}_OFFICES_METHOD`) || 'GET',
-    cityParam: getEnv(`${prefix}_CITY_PARAM`) || 'city',
-    apiKey: getEnv(`${prefix}_API_KEY`),
-    username: getEnv(`${prefix}_USERNAME`),
-    password: getEnv(`${prefix}_PASSWORD`),
-    authHeader: getEnv(`${prefix}_AUTH_HEADER`),
-    authValue: getEnv(`${prefix}_AUTH_VALUE`),
-    cityResolveUrl: getEnv(`${prefix}_CITY_RESOLVE_API_URL`),
-    cityResolveParam: getEnv(`${prefix}_CITY_RESOLVE_PARAM`) || 'city',
-  };
 }
 
 function containsSensitive(key) {
@@ -59,177 +42,15 @@ function scrubSensitive(value, depth = 0) {
   if (depth > 2) return '[trimmed]';
   if (Array.isArray(value)) return value.slice(0, 8).map((v) => scrubSensitive(v, depth + 1));
   if (!value || typeof value !== 'object') return value;
-
   const output = {};
   for (const [key, val] of Object.entries(value)) {
-    if (containsSensitive(key)) {
-      output[key] = '***';
-      continue;
-    }
-    output[key] = scrubSensitive(val, depth + 1);
+    output[key] = containsSensitive(key) ? '***' : scrubSensitive(val, depth + 1);
   }
   return output;
 }
 
-function buildHeaders(config) {
-  const headers = { Accept: 'application/json' };
-  if (config.apiKey) headers.Authorization = `Bearer ${config.apiKey}`;
-  if (!headers.Authorization && config.username && config.password) {
-    const basic = Buffer.from(`${config.username}:${config.password}`).toString('base64');
-    headers.Authorization = `Basic ${basic}`;
-  }
-  if (config.authHeader && config.authValue) {
-    headers[config.authHeader] = config.authValue;
-  }
-  return headers;
-}
-
-function pickArrayPayload(payload) {
-  if (Array.isArray(payload)) return payload;
-  if (!payload || typeof payload !== 'object') return [];
-
-  // Most common top-level keys first.
-  for (const key of SHAPE_KEYS) {
-    if (Array.isArray(payload[key])) return payload[key];
-    if (payload[key] && typeof payload[key] === 'object') {
-      for (const nestedKey of SHAPE_KEYS) {
-        if (Array.isArray(payload[key][nestedKey])) return payload[key][nestedKey];
-      }
-    }
-  }
-
-  // Generic deep scan: pick the largest array of objects.
-  let best = [];
-  const visited = new Set();
-  const queue = [payload];
-  while (queue.length) {
-    const node = queue.shift();
-    if (!node || typeof node !== 'object') continue;
-    if (visited.has(node)) continue;
-    visited.add(node);
-
-    if (Array.isArray(node)) {
-      const first = node[0];
-      if (node.length > best.length && (first == null || typeof first === 'object')) best = node;
-      for (const item of node.slice(0, 30)) {
-        if (item && typeof item === 'object') queue.push(item);
-      }
-      continue;
-    }
-
-    for (const value of Object.values(node)) {
-      if (Array.isArray(value)) {
-        const first = value[0];
-        if (value.length > best.length && (first == null || typeof first === 'object')) best = value;
-      }
-      if (value && typeof value === 'object') queue.push(value);
-    }
-  }
-
-  if (best.length) return best;
-  for (const value of Object.values(payload)) {
-    if (Array.isArray(value)) return value;
-  }
-  return [];
-}
-
-function normalizeOffice(raw, courier) {
-  const officeLikeAddress = [raw.quarter, raw.streetName, raw.street, raw.num]
-    .filter(Boolean)
-    .join(' ')
-    .trim();
-
-  const id =
-    raw.id ||
-    raw.code ||
-    raw.officeCode ||
-    raw.officeId ||
-    raw.siteId ||
-    raw.office_id ||
-    raw.num ||
-    raw.pk;
-  const name =
-    raw.name ||
-    raw.nameEn ||
-    raw.officeName ||
-    raw.office_code_name ||
-    raw.label ||
-    raw.siteName ||
-    raw.site_name ||
-    raw.office ||
-    raw.description ||
-    raw.address_full ||
-    'Офис';
-  const address =
-    raw.address ||
-    raw.addressFull ||
-    raw.addressLine ||
-    raw.addressString ||
-    raw.fullAddress ||
-    raw.address_full ||
-    officeLikeAddress ||
-    '';
-  const city =
-    raw.city ||
-    raw.cityName ||
-    raw.locality ||
-    raw.town ||
-    raw.municipality ||
-    raw.postTown ||
-    '';
-
-  if (!id && !name && !address) return null;
+function buildDebug(courier, city) {
   return {
-    id: String(id || name || address),
-    name: String(name || 'Офис'),
-    address: String(address || ''),
-    city: String(city || ''),
-    courier,
-  };
-}
-
-async function resolveEcontCity(city) {
-  // Optional resolver for APIs that need site/city IDs first.
-  return city;
-}
-
-async function resolveSpeedyCity(city) {
-  // Optional resolver for APIs that need site/city IDs first.
-  return city;
-}
-
-async function resolveCityToken(config, city, courier) {
-  if (!config.cityResolveUrl) {
-    return courier === 'econt' ? resolveEcontCity(city) : resolveSpeedyCity(city);
-  }
-
-  const url = new URL(config.cityResolveUrl);
-  url.searchParams.set(config.cityResolveParam, city);
-  const response = await fetch(url.toString(), { method: 'GET', headers: buildHeaders(config) });
-  const text = await response.text();
-  let payload = {};
-  try {
-    payload = text ? JSON.parse(text) : {};
-  } catch {
-    payload = {};
-  }
-  if (!response.ok) return city;
-  const rows = pickArrayPayload(payload);
-  const first = rows[0] || payload;
-  return (
-    first.siteId ||
-    first.siteID ||
-    first.cityId ||
-    first.cityID ||
-    first.id ||
-    first.code ||
-    city
-  );
-}
-
-async function fetchOffices(courier, city, options = {}) {
-  const debug = Boolean(options.debug);
-  const debugInfo = {
     courier,
     city,
     requestUrl: '',
@@ -241,34 +62,57 @@ async function fetchOffices(courier, city, options = {}) {
     firstRawItem: null,
     firstNormalizedItem: null,
   };
+}
 
-  const config = getCourierConfig(courier);
-  if (!config.officesUrl) {
-    const err = new Error(`Missing ${courier.toUpperCase()}_OFFICES_API_URL`);
-    err.code = 'MISSING_COURIER_ENV';
-    err.debugInfo = debugInfo;
-    throw err;
+function setDebugFromPayload(debug, payload) {
+  debug.rawTopLevelKeys =
+    payload && typeof payload === 'object' && !Array.isArray(payload)
+      ? Object.keys(payload).slice(0, 20)
+      : [];
+}
+
+function getCourierConfig(courier) {
+  const prefix = courier.toUpperCase();
+  return {
+    courier,
+    officesUrl: getEnv(`${prefix}_OFFICES_API_URL`),
+    officesMethod: (getEnv(`${prefix}_OFFICES_METHOD`) || 'GET').toUpperCase(),
+    cityParam: getEnv(`${prefix}_CITY_PARAM`) || 'city',
+    apiKey: getEnv(`${prefix}_API_KEY`),
+    username: getEnv(`${prefix}_USERNAME`),
+    password: getEnv(`${prefix}_PASSWORD`),
+    authHeader: getEnv(`${prefix}_AUTH_HEADER`),
+    authValue: getEnv(`${prefix}_AUTH_VALUE`),
+    cityResolveUrl: getEnv(`${prefix}_CITY_RESOLVE_API_URL`),
+    cityResolveParam: getEnv(`${prefix}_CITY_RESOLVE_PARAM`) || 'city',
+    apiBaseUrl: getEnv(`${prefix}_API_BASE_URL`),
+    sitesPath: getEnv(`${prefix}_SITES_PATH`) || '/location/site/',
+    officesPath: getEnv(`${prefix}_OFFICES_PATH`) || '/location/office/',
+  };
+}
+
+function buildHeaders(config, jsonBody = false) {
+  const headers = { Accept: 'application/json' };
+  if (jsonBody) headers['Content-Type'] = 'application/json';
+  if (config.apiKey) headers.Authorization = `Bearer ${config.apiKey}`;
+  if (!headers.Authorization && config.username && config.password) {
+    const basic = Buffer.from(`${config.username}:${config.password}`).toString('base64');
+    headers.Authorization = `Basic ${basic}`;
   }
-
-  const method = String(config.method || 'GET').toUpperCase();
-  const headers = buildHeaders(config);
-  const cityToken = await resolveCityToken(config, city, courier);
-  let targetUrl = config.officesUrl;
-  const requestOptions = { method, headers };
-
-  if (method === 'GET') {
-    const url = new URL(config.officesUrl);
-    url.searchParams.set(config.cityParam, cityToken);
-    targetUrl = url.toString();
-  } else {
-    headers['Content-Type'] = 'application/json';
-    requestOptions.body = JSON.stringify({ [config.cityParam]: cityToken });
+  if (config.authHeader && config.authValue) {
+    headers[config.authHeader] = config.authValue;
   }
+  return headers;
+}
 
-  debugInfo.requestUrl = sanitizeUrl(targetUrl);
-  debugInfo.method = method;
+function joinUrl(baseUrl, path) {
+  const base = String(baseUrl || '').replace(/\/+$/, '');
+  const suffix = String(path || '').replace(/^\/+/, '');
+  return `${base}/${suffix}`;
+}
 
-  const response = await fetch(targetUrl, requestOptions);
+async function requestCourierApi(url, { method = 'GET', headers = {}, body } = {}, debug) {
+  const response = await fetch(url, { method, headers, body });
   const text = await response.text();
   let payload = {};
   try {
@@ -276,43 +120,275 @@ async function fetchOffices(courier, city, options = {}) {
   } catch {
     payload = {};
   }
-
-  debugInfo.responseStatus = response.status;
-  debugInfo.rawTopLevelKeys =
-    payload && typeof payload === 'object' && !Array.isArray(payload)
-      ? Object.keys(payload).slice(0, 20)
-      : [];
-
+  if (debug) {
+    debug.requestUrl = sanitizeUrl(url);
+    debug.method = method;
+    debug.responseStatus = response.status;
+    setDebugFromPayload(debug, payload);
+  }
   if (!response.ok) {
     const err = new Error(`Courier API failed: ${response.status}`);
     err.code = 'COURIER_API_FAILED';
     err.status = response.status;
     err.details = text;
-    err.debugInfo = debugInfo;
+    err.debugInfo = debug || null;
+    throw err;
+  }
+  return payload;
+}
+
+function pickArrayPayload(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (!payload || typeof payload !== 'object') return [];
+
+  for (const key of SHAPE_KEYS) {
+    if (Array.isArray(payload[key])) return payload[key];
+    const nested = payload[key];
+    if (nested && typeof nested === 'object') {
+      for (const nestedKey of SHAPE_KEYS) {
+        if (Array.isArray(nested[nestedKey])) return nested[nestedKey];
+      }
+    }
+  }
+
+  let best = [];
+  const queue = [payload];
+  const seen = new Set();
+  while (queue.length) {
+    const node = queue.shift();
+    if (!node || typeof node !== 'object' || seen.has(node)) continue;
+    seen.add(node);
+    if (Array.isArray(node)) {
+      const first = node[0];
+      if (node.length > best.length && (first == null || typeof first === 'object')) best = node;
+      node.slice(0, 30).forEach((item) => {
+        if (item && typeof item === 'object') queue.push(item);
+      });
+      continue;
+    }
+    Object.values(node).forEach((val) => {
+      if (Array.isArray(val)) {
+        const first = val[0];
+        if (val.length > best.length && (first == null || typeof first === 'object')) best = val;
+      }
+      if (val && typeof val === 'object') queue.push(val);
+    });
+  }
+  return best;
+}
+
+function normalizeOffice(raw, courier) {
+  const addressFromParts = [raw.quarter, raw.streetName, raw.street, raw.num].filter(Boolean).join(' ');
+  const id =
+    raw.officeCode || raw.officeId || raw.id || raw.code || raw.siteId || raw.office_id || raw.pk;
+  const name =
+    raw.name ||
+    raw.nameEn ||
+    raw.officeName ||
+    raw.siteName ||
+    raw.site_name ||
+    raw.office ||
+    raw.label ||
+    'Офис';
+  const address =
+    raw.address ||
+    raw.addressFull ||
+    raw.fullAddress ||
+    raw.addressString ||
+    raw.addressLine ||
+    raw.address_full ||
+    addressFromParts ||
+    '';
+  const city = raw.city || raw.cityName || raw.locality || raw.town || raw.municipality || '';
+
+  if (!id && !name && !address) return null;
+  return {
+    id: String(id || `${courier}-${name}-${address}`),
+    name: String(name || 'Офис'),
+    address: String(address || ''),
+    city: String(city || ''),
+    courier,
+  };
+}
+
+async function resolveEcontCity(city) {
+  return city;
+}
+
+async function resolveSpeedyCity(city, config) {
+  if (!config.apiBaseUrl) return city;
+  const candidates = [
+    { name: city },
+    { name: city, language: 'BG' },
+    { filter: { name: city } },
+    { filter: { word: city } },
+  ];
+  const siteUrl = joinUrl(config.apiBaseUrl, config.sitesPath);
+  let payload = null;
+  for (const candidate of candidates) {
+    try {
+      payload = await requestCourierApi(
+        siteUrl,
+        {
+          method: 'POST',
+          headers: buildHeaders(config, true),
+          body: JSON.stringify(candidate),
+        },
+        null
+      );
+      const rows = pickArrayPayload(payload);
+      if (rows.length) {
+        const first = rows[0];
+        return first.id || first.siteId || first.siteID || first.code || city;
+      }
+    } catch {
+      // try next candidate
+    }
+  }
+  return city;
+}
+
+function softenCityFilter(offices, city) {
+  if (!city) return offices;
+  if (offices.length <= 10) return offices;
+  const filtered = offices.filter((office) =>
+    `${office.city} ${office.address} ${office.name}`.toLowerCase().includes(city.toLowerCase())
+  );
+  return filtered.length ? filtered : offices;
+}
+
+async function fetchEcontOffices(city, options = {}) {
+  const config = getCourierConfig('econt');
+  const debug = options.debug ? buildDebug('econt', city) : null;
+  if (!config.officesUrl) {
+    const err = new Error('Missing ECONT_OFFICES_API_URL');
+    err.code = 'MISSING_COURIER_ENV';
+    err.debugInfo = debug;
     throw err;
   }
 
-  const rawItems = pickArrayPayload(payload);
-  debugInfo.rawCount = rawItems.length;
-  debugInfo.firstRawItem = rawItems.length ? scrubSensitive(rawItems[0]) : null;
-
-  let offices = rawItems
-    .map((row) => normalizeOffice(row, courier))
-    .filter(Boolean);
-
-  // Soft filter: only narrow results when there are many and clear city matches exist.
-  if (city && offices.length > 10) {
-    const narrowed = offices.filter((office) => {
-      const haystack = `${office.city} ${office.address} ${office.name}`.toLowerCase();
-      return haystack.includes(city.toLowerCase());
-    });
-    if (narrowed.length > 0) offices = narrowed;
+  const cityToken = config.cityResolveUrl
+    ? city
+    : await resolveEcontCity(city); // explicit hook point for future econt city resolver
+  const method = config.officesMethod;
+  let url = config.officesUrl;
+  const request = { method, headers: buildHeaders(config, method !== 'GET') };
+  if (method === 'GET') {
+    const u = new URL(config.officesUrl);
+    u.searchParams.set(config.cityParam, cityToken);
+    url = u.toString();
+  } else {
+    request.body = JSON.stringify({ [config.cityParam]: cityToken });
   }
 
-  debugInfo.normalizedCount = offices.length;
-  debugInfo.firstNormalizedItem = offices.length ? scrubSensitive(offices[0]) : null;
+  const payload = await requestCourierApi(url, request, debug);
+  const rawItems = pickArrayPayload(payload);
+  if (debug) {
+    debug.rawCount = rawItems.length;
+    debug.firstRawItem = rawItems.length ? scrubSensitive(rawItems[0]) : null;
+  }
 
-  return debug ? { offices, debugInfo } : offices;
+  let offices = rawItems.map((row) => normalizeOffice(row, 'econt')).filter(Boolean);
+  offices = softenCityFilter(offices, city);
+
+  if (debug) {
+    debug.normalizedCount = offices.length;
+    debug.firstNormalizedItem = offices.length ? scrubSensitive(offices[0]) : null;
+    return { offices, debugInfo: debug };
+  }
+  return offices;
+}
+
+async function fetchSpeedyOffices(city, options = {}) {
+  const config = getCourierConfig('speedy');
+  const debug = options.debug ? buildDebug('speedy', city) : null;
+
+  // Legacy direct offices URL mode.
+  if (config.officesUrl) {
+    const method = config.officesMethod;
+    let url = config.officesUrl;
+    const request = { method, headers: buildHeaders(config, method !== 'GET') };
+    if (method === 'GET') {
+      const u = new URL(config.officesUrl);
+      u.searchParams.set(config.cityParam, city);
+      url = u.toString();
+    } else {
+      request.body = JSON.stringify({ [config.cityParam]: city });
+    }
+    const payload = await requestCourierApi(url, request, debug);
+    const rawItems = pickArrayPayload(payload);
+    if (debug) {
+      debug.rawCount = rawItems.length;
+      debug.firstRawItem = rawItems.length ? scrubSensitive(rawItems[0]) : null;
+    }
+    let offices = rawItems.map((row) => normalizeOffice(row, 'speedy')).filter(Boolean);
+    offices = softenCityFilter(offices, city);
+    if (debug) {
+      debug.normalizedCount = offices.length;
+      debug.firstNormalizedItem = offices.length ? scrubSensitive(offices[0]) : null;
+      return { offices, debugInfo: debug };
+    }
+    return offices;
+  }
+
+  // Native Speedy mode using API base + siteId resolution.
+  if (!config.apiBaseUrl || !config.username || !config.password) {
+    const err = new Error('Missing Speedy base credentials');
+    err.code = 'MISSING_COURIER_ENV';
+    err.debugInfo = debug;
+    throw err;
+  }
+
+  const siteId = await resolveSpeedyCity(city, config);
+  const officeUrl = joinUrl(config.apiBaseUrl, config.officesPath);
+  const officePayloadCandidates = [
+    { siteId },
+    { siteID: siteId },
+    { filter: { siteId } },
+    { filter: { siteID: siteId } },
+    { language: 'BG', siteId },
+  ];
+
+  let payload = {};
+  for (const candidate of officePayloadCandidates) {
+    try {
+      payload = await requestCourierApi(
+        officeUrl,
+        {
+          method: 'POST',
+          headers: buildHeaders(config, true),
+          body: JSON.stringify(candidate),
+        },
+        debug
+      );
+      const raw = pickArrayPayload(payload);
+      if (raw.length) break;
+    } catch (err) {
+      if (candidate === officePayloadCandidates[officePayloadCandidates.length - 1]) throw err;
+    }
+  }
+
+  const rawItems = pickArrayPayload(payload);
+  if (debug) {
+    debug.rawCount = rawItems.length;
+    debug.firstRawItem = rawItems.length ? scrubSensitive(rawItems[0]) : null;
+  }
+  let offices = rawItems.map((row) => normalizeOffice(row, 'speedy')).filter(Boolean);
+  offices = softenCityFilter(offices, city);
+  if (debug) {
+    debug.normalizedCount = offices.length;
+    debug.firstNormalizedItem = offices.length ? scrubSensitive(offices[0]) : null;
+    return { offices, debugInfo: debug };
+  }
+  return offices;
+}
+
+async function fetchOffices(courier, city, options = {}) {
+  if (courier === 'econt') return fetchEcontOffices(city, options);
+  if (courier === 'speedy') return fetchSpeedyOffices(city, options);
+  const err = new Error('Unsupported courier');
+  err.code = 'INVALID_COURIER';
+  throw err;
 }
 
 module.exports = {
@@ -321,5 +397,7 @@ module.exports = {
   normalizeOffice,
   resolveEcontCity,
   resolveSpeedyCity,
+  fetchEcontOffices,
+  fetchSpeedyOffices,
   fetchOffices,
 };

@@ -2564,6 +2564,7 @@ label { margin-right: 0; }
 .checkout-field input[type="text"],
 .checkout-field input[type="tel"],
 .checkout-field input[type="email"],
+.checkout-field select,
 .checkout-field textarea {
   width: 100%;
   padding: 0.7rem 0.9rem;
@@ -2579,14 +2580,22 @@ label { margin-right: 0; }
   resize: vertical;
 }
 .checkout-field input:focus,
+.checkout-field select:focus,
 .checkout-field textarea:focus {
   outline: none;
   border-color: var(--accent-green);
   box-shadow: 0 0 0 2px rgba(168, 191, 163, 0.25);
 }
 .checkout-field--error input,
+.checkout-field--error select,
 .checkout-field--error textarea {
   border-color: #b85c4a;
+}
+.checkout-field__hint {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: rgba(90, 70, 54, 0.78);
 }
 .checkout-options {
   display: flex;

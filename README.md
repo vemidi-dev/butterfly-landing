@@ -93,6 +93,14 @@ Supabase service role key се използва **само** в serverless funct
 | `ORDER_NOTIFY_EMAIL` | Имейл за известия при нова поръчка |
 | `FROM_EMAIL` | Подател, напр. `VeMiDi crafts <noreply@yourdomain.com>` |
 | `ADMIN_PASSWORD` | Парола за вход в `/admin` |
+| `ECONT_OFFICES_API_URL` | URL към API за офиси на Еконт (server-to-server) |
+| `ECONT_OFFICES_METHOD` | Метод за Еконт API (`GET` или `POST`, по подразбиране `GET`) |
+| `ECONT_CITY_PARAM` | Име на параметъра за град (по подразбиране `city`) |
+| `ECONT_API_KEY` / `ECONT_USERNAME` + `ECONT_PASSWORD` | Достъп до Еконт API (според интеграцията) |
+| `SPEEDY_OFFICES_API_URL` | URL към API за офиси на Спиди (server-to-server) |
+| `SPEEDY_OFFICES_METHOD` | Метод за Спиди API (`GET` или `POST`, по подразбиране `GET`) |
+| `SPEEDY_CITY_PARAM` | Име на параметъра за град (по подразбиране `city`) |
+| `SPEEDY_API_KEY` / `SPEEDY_USERNAME` + `SPEEDY_PASSWORD` | Достъп до Спиди API (според интеграцията) |
 
 Виж `.env.example` за шаблон. **Не комитвай** реални ключове.
 
@@ -126,6 +134,26 @@ Supabase service role key се използва **само** в serverless funct
 `Нова поръчка: Вълшебни пеперуди – [име на клиента] – [сума] €`
 
 Имейлът съдържа: клиент, телефон, имейл, комплект, оцветяване, персонализация, име, доставка, куриер, обща цена, бележка.
+
+### `GET /api/couriers/econt/offices?city=София`
+
+Прокси endpoint за търсене на офиси на Еконт по град. Ключовете остават само в backend.
+
+### `GET /api/couriers/speedy/offices?city=София`
+
+Прокси endpoint за търсене на офиси на Спиди по град. Frontend-ът получава нормализиран формат:
+
+```json
+[
+  {
+    "id": "office-id-or-code",
+    "name": "Офис име",
+    "address": "Пълен адрес",
+    "city": "Град",
+    "courier": "econt"
+  }
+]
+```
 
 ## Тестване
 

@@ -815,11 +815,18 @@
               </div>
               <div class="checkout-field">
                 <label for="city">Град <span class="checkout-required">*</span></label>
-                <input type="text" id="city" name="city" required maxlength="80" autocomplete="address-level2">
+                <input type="text" id="city" name="city" required maxlength="80" autocomplete="address-level2" placeholder="Въведи град">
               </div>
-              <div class="checkout-field">
-                <label for="deliveryDetails" id="deliveryDetailsLabel">Офис <span class="checkout-required">*</span></label>
-                <input type="text" id="deliveryDetails" name="deliveryDetails" required maxlength="200" placeholder="Име или адрес на офис">
+              <div class="checkout-field" id="officeField">
+                <label for="officeSelect" id="officeLabel">Офис <span class="checkout-required">*</span></label>
+                <select id="officeSelect" name="officeSelect" disabled>
+                  <option value="">Първо въведи град</option>
+                </select>
+                <small class="checkout-field__hint" id="officeHint">Въведи поне 2 символа в полето за град, за да заредим реални офиси.</small>
+              </div>
+              <div class="checkout-field" id="deliveryDetailsField" hidden>
+                <label for="deliveryDetails" id="deliveryDetailsLabel">Адрес <span class="checkout-required">*</span></label>
+                <input type="text" id="deliveryDetails" name="deliveryDetails" maxlength="200" placeholder="Улица, номер, вход, етаж…">
               </div>
             </fieldset>
 

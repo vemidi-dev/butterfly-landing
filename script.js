@@ -98,11 +98,18 @@
   const checkoutSummaryTotal = document.getElementById('checkoutSummaryTotal');
   const checkoutErrors = document.getElementById('checkoutErrors');
   const checkoutSubmitBtn = document.getElementById('checkoutSubmitBtn');
+  const cityInput = document.getElementById('city');
+  const officeField = document.getElementById('officeField');
+  const officeSelect = document.getElementById('officeSelect');
+  const officeHint = document.getElementById('officeHint');
+  const deliveryDetailsField = document.getElementById('deliveryDetailsField');
   const deliveryDetailsLabel = document.getElementById('deliveryDetailsLabel');
   const deliveryDetailsInput = document.getElementById('deliveryDetails');
   const yearEl = document.getElementById('year');
   const navToggle = document.getElementById('navToggle');
   const mainNav = document.getElementById('mainNav');
+  const officesCache = new Map();
+  let officesDebounceTimer = null;
 
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
@@ -250,15 +257,35 @@
 
   function getCheckoutFormData() {
     const fd = new FormData(checkoutForm);
+    const deliveryType = fd.get('deliveryType') || 'office';
+    const selectedOfficeOption = officeSelect?.selectedOptions?.[0] || null;
+    const selectedOffice = selectedOfficeOption?.value
+      ? {
+          id: selectedOfficeOption.value,
+          name: selectedOfficeOption.dataset.name || selectedOfficeOption.textContent || '',
+          address: selectedOfficeOption.dataset.address || '',
+          city: selectedOfficeOption.dataset.city || '',
+          courier: selectedOfficeOption.dataset.courier || (fd.get('courier') || 'econt'),
+        }
+      : null;
+
+    const officeDeliveryDetails = selectedOffice
+      ? [selectedOffice.name, selectedOffice.address].filter(Boolean).join(', ')
+      : '';
+
     return {
       customerName: (fd.get('customerName') || '').trim(),
       customerPhone: (fd.get('customerPhone') || '').trim(),
       customerEmail: (fd.get('customerEmail') || '').trim(),
       orderNote: (fd.get('orderNote') || '').trim(),
       courier: fd.get('courier') || 'econt',
-      deliveryType: fd.get('deliveryType') || 'office',
+      deliveryType,
       city: (fd.get('city') || '').trim(),
-      deliveryDetails: (fd.get('deliveryDetails') || '').trim(),
+      deliveryDetails:
+        deliveryType === 'office'
+          ? officeDeliveryDetails
+          : (fd.get('deliveryDetails') || '').trim(),
+      office: deliveryType === 'office' ? selectedOffice : null,
       gdpr: fd.get('gdpr') === 'on',
     };
   }
@@ -299,7 +326,11 @@
       errors.push('Градът е задължителен.');
       fields.push('city');
     }
-    if (!checkoutData.deliveryDetails) {
+    if (checkoutData.deliveryType === 'office' && !checkoutData.office?.id) {
+      errors.push('Моля, избери офис от списъка.');
+      fields.push('officeSelect');
+    }
+    if (checkoutData.deliveryType === 'address' && !checkoutData.deliveryDetails) {
       errors.push(
         checkoutData.deliveryType === 'address'
           ? 'Адресът за доставка е задължителен.'
@@ -327,12 +358,99 @@
     if (!deliveryDetailsLabel || !deliveryDetailsInput) return;
     const type = checkoutForm?.querySelector('input[name="deliveryType"]:checked')?.value || 'office';
     if (type === 'address') {
-      deliveryDetailsLabel.innerHTML = 'Адрес <span class="checkout-required">*</span>';
+      deliveryDetailsField.hidden = false;
+      officeField.hidden = true;
+      deliveryDetailsInput.required = true;
+      if (officeSelect) {
+        officeSelect.required = false;
+        officeSelect.value = '';
+      }
       deliveryDetailsInput.placeholder = 'Улица, номер, вход, етаж…';
     } else {
-      deliveryDetailsLabel.innerHTML = 'Офис <span class="checkout-required">*</span>';
-      deliveryDetailsInput.placeholder = 'Име или адрес на офис';
+      deliveryDetailsField.hidden = true;
+      officeField.hidden = false;
+      deliveryDetailsInput.required = false;
+      deliveryDetailsInput.value = '';
+      if (officeSelect) officeSelect.required = true;
+      queueOfficesLoad();
     }
+  }
+
+  function setOfficeLoading(message) {
+    if (!officeSelect) return;
+    officeSelect.disabled = true;
+    officeSelect.innerHTML = `<option value="">${escapeHtml(message)}</option>`;
+  }
+
+  async function loadCourierOffices() {
+    const deliveryType =
+      checkoutForm?.querySelector('input[name="deliveryType"]:checked')?.value || 'office';
+    if (deliveryType !== 'office') return;
+
+    const city = (cityInput?.value || '').trim();
+    const courier =
+      checkoutForm?.querySelector('input[name="courier"]:checked')?.value || 'econt';
+
+    if (city.length < 2) {
+      setOfficeLoading('Въведи поне 2 символа за град');
+      if (officeHint) officeHint.textContent = 'Въведи град, за да заредим офиси.';
+      return;
+    }
+
+    const cacheKey = `${courier}:${city.toLowerCase()}`;
+    if (officesCache.has(cacheKey)) {
+      renderOffices(officesCache.get(cacheKey));
+      return;
+    }
+
+    setOfficeLoading('Зареждаме офиси...');
+    if (officeHint) officeHint.textContent = 'Изчакване на отговор от куриера...';
+
+    try {
+      const response = await fetch(
+        `/api/couriers/${encodeURIComponent(courier)}/offices?city=${encodeURIComponent(city)}`
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || 'Неуспешно зареждане на офиси.');
+      }
+      const offices = Array.isArray(data.offices) ? data.offices : [];
+      officesCache.set(cacheKey, offices);
+      renderOffices(offices);
+    } catch (err) {
+      setOfficeLoading('Няма налични офиси');
+      if (officeHint) officeHint.textContent = err.message || 'Не успяхме да заредим офиси.';
+    }
+  }
+
+  function renderOffices(offices) {
+    if (!officeSelect) return;
+    if (!Array.isArray(offices) || !offices.length) {
+      setOfficeLoading('Не са намерени офиси');
+      if (officeHint) officeHint.textContent = 'Провери изписването на града или избери доставка до адрес.';
+      return;
+    }
+
+    officeSelect.disabled = false;
+    officeSelect.innerHTML = '<option value="">Избери офис</option>';
+    offices.forEach((office) => {
+      const option = document.createElement('option');
+      option.value = String(office.id || '');
+      option.dataset.name = office.name || '';
+      option.dataset.address = office.address || '';
+      option.dataset.city = office.city || '';
+      option.dataset.courier = office.courier || '';
+      option.textContent = `${office.name || 'Офис'} — ${office.address || ''} (${office.city || ''})${
+        office.id ? ` [${office.id}]` : ''
+      }`;
+      officeSelect.appendChild(option);
+    });
+    if (officeHint) officeHint.textContent = `Намерени офиси: ${offices.length}`;
+  }
+
+  function queueOfficesLoad() {
+    clearTimeout(officesDebounceTimer);
+    officesDebounceTimer = setTimeout(loadCourierOffices, 350);
   }
 
   function populateCheckoutSummary(state, total) {
@@ -377,6 +495,7 @@
         type: checkoutData.deliveryType,
         city: checkoutData.city,
         details: checkoutData.deliveryDetails,
+        office: checkoutData.office,
       },
       order: {
         kitSize: configState.size,
@@ -490,6 +609,13 @@
       checkoutForm.reset();
       checkoutForm.querySelector('input[name="courier"][value="econt"]').checked = true;
       checkoutForm.querySelector('input[name="deliveryType"][value="office"]').checked = true;
+      if (officeSelect) {
+        officeSelect.innerHTML = '<option value="">Първо въведи град</option>';
+        officeSelect.disabled = true;
+      }
+      if (officeHint) {
+        officeHint.textContent = 'Въведи поне 2 символа в полето за град, за да заредим реални офиси.';
+      }
       updateDeliveryDetailsLabel();
     } catch (err) {
       console.error('Order submit failed:', err);
@@ -552,6 +678,12 @@
   checkoutForm?.querySelectorAll('input[name="deliveryType"]').forEach((input) => {
     input.addEventListener('change', updateDeliveryDetailsLabel);
   });
+  checkoutForm?.querySelectorAll('input[name="courier"]').forEach((input) => {
+    input.addEventListener('change', queueOfficesLoad);
+  });
+
+  cityInput?.addEventListener('input', queueOfficesLoad);
+  officeSelect?.addEventListener('change', clearCheckoutErrors);
 
   checkoutForm?.addEventListener('input', clearCheckoutErrors);
 

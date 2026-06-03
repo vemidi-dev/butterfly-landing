@@ -100,6 +100,21 @@ label { margin-right: 0; }
 }
 .btn--block-mobile { display: inline-flex; }
 
+/* —— UI icons (standardized line-art set in assets/icons/) —— */
+.ui-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+  object-fit: contain;
+}
+.ui-icon--lg {
+  width: 2rem;
+  height: 2rem;
+}
+.ui-icon--soft {
+  opacity: 0.9;
+}
+
 /* —— Buttons —— */
 .btn {
   display: inline-flex;
@@ -456,53 +471,81 @@ label { margin-right: 0; }
 }
 .hero__steps {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-between;
-  gap: clamp(0.55rem, 1.5vw, 1rem);
+  gap: clamp(0.6rem, 1.8vw, 1.4rem);
   list-style: none;
   margin: 0;
   padding: 0;
-  max-width: min(520px, 100%);
+  max-width: min(640px, 100%);
 }
 .hero__step {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  text-align: center;
+  text-align: left;
+  gap: 0.7rem;
   position: relative;
   padding: 0 0.25rem;
   min-width: 0;
+}
+.hero__step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: calc(clamp(0.6rem, 1.8vw, 1.4rem) / -2);
+  top: 12%;
+  bottom: 12%;
+  width: 1px;
+  background: rgba(178, 152, 120, 0.35);
 }
 .hero__step-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: auto;
-  height: auto;
-  margin-bottom: 0.55rem;
+  width: clamp(46px, 5vw, 56px);
+  height: clamp(46px, 5vw, 56px);
+  border-radius: 50%;
+  background: rgba(216, 195, 165, 0.22);
+  margin-bottom: 0;
   flex-shrink: 0;
   color: #8f7a66;
 }
 .hero__step-icon svg {
   display: block;
-  width: clamp(28px, 3.2vw, 34px);
-  height: clamp(28px, 3.2vw, 34px);
+  width: clamp(24px, 2.8vw, 28px);
+  height: clamp(24px, 2.8vw, 28px);
 }
 .hero__step-label {
-  font-size: clamp(0.7rem, 1vw, 0.76rem);
+  font-size: clamp(0.74rem, 1vw, 0.82rem);
   font-weight: 500;
   color: #7a6654;
-  line-height: 1.38;
+  line-height: 1.32;
   max-width: 8.5rem;
 }
+.hero__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: clamp(0.78rem, 1vw, 0.86rem);
+  font-weight: 500;
+  color: #7a6654;
+}
+.hero__meta-deco {
+  display: inline-flex;
+  color: #c9a98a;
+  flex-shrink: 0;
+}
+.hero__meta-text { white-space: nowrap; }
 .hero__actions {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
   margin-bottom: 0;
-  max-width: min(340px, 100%);
+  max-width: min(520px, 100%);
 }
+.hero__actions .btn { flex: 1 1 auto; }
 .btn--hero {
   min-height: 54px;
   padding: 0.72rem 1.1rem;
@@ -886,6 +929,7 @@ label { margin-right: 0; }
 }
 
 .magic-step__card {
+  --magic-visual-size: clamp(118px, 13vw, 148px);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -895,7 +939,8 @@ label { margin-right: 0; }
   box-shadow: 0 10px 32px rgba(90, 70, 54, 0.07);
   border: 1px solid rgba(232, 222, 210, 0.9);
   padding: 0 1rem 1.35rem;
-  padding-top: clamp(4.5rem, 7vw, 5.25rem);
+  /* Room for photo + badge overlapping the card top (62% of visual height + badge) */
+  padding-top: calc(var(--magic-visual-size) * 0.62 + 1.5rem);
   text-align: center;
   position: relative;
   z-index: 1;
@@ -907,7 +952,7 @@ label { margin-right: 0; }
   left: 50%;
   transform: translate(-50%, -42%);
   z-index: 2;
-  width: clamp(118px, 13vw, 148px);
+  width: var(--magic-visual-size);
 }
 
 .magic-step__photo {
@@ -2903,9 +2948,8 @@ label { margin-right: 0; }
   .hero__panel { max-width: min(560px, 100%); gap: 0.8rem; }
   .hero__step-label { font-size: 0.72rem; max-width: 6.5rem; }
   .hero__actions {
-    grid-template-columns: 1fr;
     margin-bottom: 0;
-    width: min(360px, 100%);
+    width: 100%;
   }
   .hero__leaves {
     background-position: -20% 20%;
@@ -2986,7 +3030,7 @@ label { margin-right: 0; }
     width: calc(100% - 58px + 50%);
     top: 58px;
   }
-  .magic-step__visual { width: clamp(110px, 20vw, 130px); }
+  .magic-step__card { --magic-visual-size: clamp(110px, 20vw, 130px); }
   .configurator__layout { grid-template-columns: 1fr; }
   .config-summary { position: static; order: 2; }
   .configurator-panel { order: 1; }
@@ -3229,12 +3273,8 @@ label { margin-right: 0; }
     font-size: 0.72rem;
   }
   .magic-step::after { display: none !important; }
-  .magic-step__visual {
-    width: clamp(112px, 38vw, 138px);
-    transform: translate(-50%, -38%);
-  }
   .magic-step__card {
-    padding-top: 4.25rem;
+    --magic-visual-size: clamp(112px, 38vw, 138px);
     border-radius: 24px;
   }
   .steps-header__title { font-size: clamp(1.5rem, 6vw, 1.85rem); }

@@ -220,3 +220,10 @@ Speedy native flow (когато няма `SPEEDY_OFFICES_API_URL`):
 - `api/lib/` — споделена логика (Supabase, auth, email)
 - `supabase/schema.sql` — таблица `orders`
 - `assets/` — изображения
+- `assets/icons/` — стандартизиран line-art icon set
+
+## Icons
+
+Icon assets are stored in `assets/icons/`.
+Some icons may be from Streamline Icons and require attribution under the Streamline Free License.
+See `assets/icons/LICENSE.md`.

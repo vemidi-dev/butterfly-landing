@@ -12,7 +12,7 @@
       shortName: 'Мини',
       figures: '3 фигурки',
       composition: '(1 пеперуда + 2 водни кончета)',
-      previewImage: 'assets/elements.png',
+      previewImage: 'assets/elements.webp',
       previewAlt: 'Комплект Мини — творчески комплект',
       items: [
         '1 дървена пеперуда',
@@ -27,7 +27,7 @@
       shortName: 'Стандарт',
       figures: '5 фигурки',
       composition: '(3 пеперуди + 2 водни кончета)',
-      previewImage: 'assets/personal.png',
+      previewImage: 'assets/personal.webp',
       previewAlt: 'Комплект Стандарт — готова украса',
       items: [
         '3 дървени пеперуди',
@@ -42,7 +42,7 @@
       shortName: 'Макси',
       figures: '7 фигурки',
       composition: '(3 пеперуди + 4 водни кончета)',
-      previewImage: 'assets/hero-1.png',
+      previewImage: 'assets/hero-1.webp',
       previewAlt: 'Комплект Макси — пълна визуализация',
       items: [
         '3 дървени пеперуди',

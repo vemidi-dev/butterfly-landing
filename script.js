@@ -13,7 +13,7 @@
       figures: '3 фигурки',
       composition: '(1 пеперуда + 2 водни кончета)',
       previewImage: 'assets/elements.webp',
-      previewAlt: 'Комплект Мини — творчески комплект',
+      previewAlt: 'Комплект Мини - творчески комплект',
       items: [
         '1 дървена пеперуда',
         '2 дървени водни кончета',
@@ -28,7 +28,7 @@
       figures: '5 фигурки',
       composition: '(3 пеперуди + 2 водни кончета)',
       previewImage: 'assets/personal.webp',
-      previewAlt: 'Комплект Стандарт — готова украса',
+      previewAlt: 'Комплект Стандарт - готова украса',
       items: [
         '3 дървени пеперуди',
         '2 дървени водни кончета',
@@ -43,7 +43,7 @@
       figures: '7 фигурки',
       composition: '(3 пеперуди + 4 водни кончета)',
       previewImage: 'assets/hero-1.webp',
-      previewAlt: 'Комплект Макси — пълна визуализация',
+      previewAlt: 'Комплект Макси - пълна визуализация',
       items: [
         '3 дървени пеперуди',
         '4 дървени водни кончета',
@@ -490,7 +490,7 @@
       option.dataset.address = office.address || '';
       option.dataset.city = office.city || '';
       option.dataset.courier = office.courier || '';
-      option.textContent = `${office.name || 'Офис'} — ${office.address || ''} (${office.city || ''})${
+      option.textContent = `${office.name || 'Офис'} - ${office.address || ''} (${office.city || ''})${
         office.id ? ` [${office.id}]` : ''
       }`;
       officeSelect.appendChild(option);
@@ -513,7 +513,7 @@
         label: 'Персонализация',
         value: state.personalize
           ? state.childName
-            ? `Да — ${state.childName}`
+            ? `Да - ${state.childName}`
             : 'Да'
           : 'Не',
       },

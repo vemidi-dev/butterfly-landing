@@ -57,11 +57,11 @@
   const COLORING = {
     paints: {
       label: 'Бои с четка',
-      description: 'Класическо и лесно за най-малките',
+      description: 'Мек акварелен ефект',
     },
     markers: {
       label: 'Флумастери',
-      description: 'Ярки цветове и лесно оцветяване',
+      description: 'Ярки цветове без подготовка',
     },
   };
 

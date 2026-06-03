@@ -33,3 +33,7 @@ create index if not exists orders_status_idx on orders (status);
 alter table orders add column if not exists office_id text;
 alter table orders add column if not exists office_name text;
 alter table orders add column if not exists office_address text;
+
+alter table public.orders enable row level security;
+revoke all on table public.orders from anon;
+revoke all on table public.orders from authenticated;

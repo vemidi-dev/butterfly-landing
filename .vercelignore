@@ -1,0 +1,20 @@
+# Source masters — not needed at runtime (WebP versions are deployed)
+assets/originals/
+
+# Unused large raster assets (logo.png is kept for header/footer)
+assets/ChatGPT Image May 26, 2026, 09_07_54 AM.png
+assets/color-butterflys-2.png
+assets/example.png
+assets/hero.png
+assets/personalized.png
+assets/reference-mockup.png
+assets/sglobqva.jpg
+assets/simona.png
+assets/steps-section.png
+assets/occasions/color-butterflys-1.png
+
+# Optional: ignore any future loose PNG/JPG in assets root except logo
+assets/*.png
+!assets/logo.png
+assets/*.jpg
+assets/*.jpeg

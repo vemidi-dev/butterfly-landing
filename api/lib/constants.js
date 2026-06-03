@@ -2,7 +2,7 @@ const PRODUCT_NAME = 'Вълшебни пеперуди';
 const CURRENCY = 'EUR';
 
 const COURIER_LABELS = { econt: 'Еконт', speedy: 'Спиди' };
-const DELIVERY_LABELS = { office: 'До офис', address: 'До адрес' };
+const DELIVERY_LABELS = { office: 'До офис', locker: 'До автомат', address: 'До адрес' };
 const COLORING_LABELS = { paints: 'Бои с четка', markers: 'Флумастери' };
 
 const KIT_FIGURES = {

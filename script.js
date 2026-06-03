@@ -105,6 +105,9 @@
   const deliveryDetailsField = document.getElementById('deliveryDetailsField');
   const deliveryDetailsLabel = document.getElementById('deliveryDetailsLabel');
   const deliveryDetailsInput = document.getElementById('deliveryDetails');
+  const manualOfficeField = document.getElementById('manualOfficeField');
+  const manualOfficeLabel = document.getElementById('manualOfficeLabel');
+  const manualOfficeInput = document.getElementById('manualOfficeNote');
   const yearEl = document.getElementById('year');
   const navToggle = document.getElementById('navToggle');
   const mainNav = document.getElementById('mainNav');
@@ -273,6 +276,17 @@
       ? [selectedOffice.name, selectedOffice.address].filter(Boolean).join(', ')
       : '';
 
+    const manualOfficeNote = (fd.get('manualOfficeNote') || '').trim();
+
+    let deliveryDetails;
+    if (deliveryType === 'office') {
+      deliveryDetails = officeDeliveryDetails || manualOfficeNote;
+    } else if (deliveryType === 'locker') {
+      deliveryDetails = manualOfficeNote;
+    } else {
+      deliveryDetails = (fd.get('deliveryDetails') || '').trim();
+    }
+
     return {
       customerName: (fd.get('customerName') || '').trim(),
       customerPhone: (fd.get('customerPhone') || '').trim(),
@@ -281,12 +295,11 @@
       courier: fd.get('courier') || 'econt',
       deliveryType,
       city: (fd.get('city') || '').trim(),
-      deliveryDetails:
-        deliveryType === 'office'
-          ? officeDeliveryDetails
-          : (fd.get('deliveryDetails') || '').trim(),
+      deliveryDetails,
       office: deliveryType === 'office' ? selectedOffice : null,
+      manualOfficeNote,
       gdpr: fd.get('gdpr') === 'on',
+      safetyConsent: fd.get('safetyConsent') === 'on',
     };
   }
 
@@ -326,17 +339,26 @@
       errors.push('Градът е задължителен.');
       fields.push('city');
     }
-    if (checkoutData.deliveryType === 'office' && !checkoutData.office?.id) {
-      errors.push('Моля, избери офис от списъка.');
-      fields.push('officeSelect');
+    if (checkoutData.deliveryType === 'office') {
+      if (!checkoutData.office?.id && !checkoutData.manualOfficeNote) {
+        errors.push('Избери офис от списъка или напиши желания офис в полето по-долу.');
+        fields.push('officeSelect');
+        fields.push('manualOfficeNote');
+      }
+    } else if (checkoutData.deliveryType === 'locker') {
+      if (!checkoutData.manualOfficeNote) {
+        errors.push('Напиши желания автомат за доставка.');
+        fields.push('manualOfficeNote');
+      }
+    } else if (checkoutData.deliveryType === 'address') {
+      if (!checkoutData.deliveryDetails) {
+        errors.push('Адресът за доставка е задължителен.');
+        fields.push('deliveryDetails');
+      }
     }
-    if (checkoutData.deliveryType === 'address' && !checkoutData.deliveryDetails) {
-      errors.push(
-        checkoutData.deliveryType === 'address'
-          ? 'Адресът за доставка е задължителен.'
-          : 'Офисът е задължителен.'
-      );
-      fields.push('deliveryDetails');
+    if (!checkoutData.safetyConsent) {
+      errors.push('Необходимо е да потвърдиш предупреждението за безопасност.');
+      fields.push('safetyConsent');
     }
     if (!checkoutData.gdpr) {
       errors.push('Необходимо е съгласие за обработка на данните.');
@@ -357,21 +379,43 @@
   function updateDeliveryDetailsLabel() {
     if (!deliveryDetailsLabel || !deliveryDetailsInput) return;
     const type = checkoutForm?.querySelector('input[name="deliveryType"]:checked')?.value || 'office';
+
     if (type === 'address') {
       deliveryDetailsField.hidden = false;
-      officeField.hidden = true;
       deliveryDetailsInput.required = true;
+      deliveryDetailsInput.placeholder = 'Улица, номер, вход, етаж…';
+      if (officeField) officeField.hidden = true;
       if (officeSelect) {
         officeSelect.required = false;
         officeSelect.value = '';
       }
-      deliveryDetailsInput.placeholder = 'Улица, номер, вход, етаж…';
-    } else {
+      if (manualOfficeField) manualOfficeField.hidden = true;
+      if (manualOfficeInput) manualOfficeInput.value = '';
+    } else if (type === 'locker') {
       deliveryDetailsField.hidden = true;
-      officeField.hidden = false;
       deliveryDetailsInput.required = false;
       deliveryDetailsInput.value = '';
-      if (officeSelect) officeSelect.required = true;
+      if (officeField) officeField.hidden = true;
+      if (officeSelect) {
+        officeSelect.required = false;
+        officeSelect.value = '';
+      }
+      if (manualOfficeField) manualOfficeField.hidden = false;
+      if (manualOfficeLabel) {
+        manualOfficeLabel.innerHTML = 'Желан автомат за доставка <span class="checkout-required">*</span>';
+      }
+      if (manualOfficeInput) manualOfficeInput.placeholder = 'Напиши име/адрес на автомата';
+    } else {
+      deliveryDetailsField.hidden = true;
+      deliveryDetailsInput.required = false;
+      deliveryDetailsInput.value = '';
+      if (officeField) officeField.hidden = false;
+      if (officeSelect) officeSelect.required = false;
+      if (manualOfficeField) manualOfficeField.hidden = false;
+      if (manualOfficeLabel) manualOfficeLabel.textContent = 'Не намираш желания офис?';
+      if (manualOfficeInput) {
+        manualOfficeInput.placeholder = 'Напиши желания офис тук, ако не го откриваш в списъка';
+      }
       queueOfficesLoad();
     }
   }
@@ -419,15 +463,21 @@
       renderOffices(offices);
     } catch (err) {
       setOfficeLoading('Няма налични офиси');
-      if (officeHint) officeHint.textContent = err.message || 'Не успяхме да заредим офиси.';
+      if (officeHint) {
+        officeHint.textContent =
+          'Не успяхме да заредим офиси. Можете да напишете желания офис в полето по-долу и ще се свържем с Вас за уточнение.';
+      }
     }
   }
 
   function renderOffices(offices) {
     if (!officeSelect) return;
     if (!Array.isArray(offices) || !offices.length) {
-      setOfficeLoading('Не са намерени офиси');
-      if (officeHint) officeHint.textContent = 'Провери изписването на града или избери доставка до адрес.';
+      setOfficeLoading('Не са намерени офиси за този град');
+      if (officeHint) {
+        officeHint.textContent =
+          'Не откриваме офис за този град. Можете да напишете желания офис в полето по-долу и ще се свържем с Вас за уточнение.';
+      }
       return;
     }
 
@@ -484,6 +534,7 @@
     const kit = KITS[configState.size];
     return {
       gdpr: checkoutData.gdpr,
+      safetyConsent: checkoutData.safetyConsent,
       note: checkoutData.orderNote || null,
       customer: {
         name: checkoutData.customerName,
@@ -499,6 +550,7 @@
         officeId: checkoutData.office?.id || null,
         officeName: checkoutData.office?.name || null,
         officeAddress: checkoutData.office?.address || null,
+        manualOfficeNote: checkoutData.manualOfficeNote || null,
       },
       order: {
         kitSize: configState.size,

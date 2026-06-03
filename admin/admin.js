@@ -210,8 +210,10 @@
       ['ID на офис', o.officeId || '—'],
       ['Име на офис', o.officeName || '—'],
       ['Адрес на офис', o.officeAddress || '—'],
+      ['Желан офис/автомат (ръчно)', o.manualOfficeNote || '—'],
       ['Офис / адрес', o.deliveryDetails],
       ['Бележка', o.note || '—'],
+      ['Потвърждение за безопасност', yesNo(o.safetyConsent)],
       ['Обща сума', o.totalPriceFormatted],
       ['Плащане', o.paymentMethod],
     ];

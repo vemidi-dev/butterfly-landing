@@ -39,6 +39,7 @@ function buildOrderEmailContent(order, body) {
   const officeId = office.id || delivery.officeId || order.office_id || '—';
   const officeName = office.name || delivery.officeName || order.office_name || '—';
   const officeAddress = office.address || delivery.officeAddress || order.office_address || '—';
+  const manualOfficeNote = String(delivery.manualOfficeNote || '').trim();
 
   const rows = [
     ['ID на поръчката', order.id],
@@ -57,9 +58,11 @@ function buildOrderEmailContent(order, body) {
     ['Офис ID / код', officeId],
     ['Име на офис', officeName],
     ['Адрес на офис', officeAddress],
+    ['Желан офис/автомат (ръчно)', manualOfficeNote || '—'],
     ['Офис/адрес', delivery.details || order.delivery_details],
     ['Обща цена', totalFormatted],
     ['Бележка', note || '—'],
+    ['Потвърждение за безопасност', body.safetyConsent === true ? 'Да' : 'Не'],
   ];
 
   const htmlRows = rows

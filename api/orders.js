@@ -25,15 +25,24 @@ function validatePayload(body) {
   if (!phone || phone.length < 6) errors.push('Телефонът е задължителен.');
   if (!isValidEmail(String(customer.email || '').trim())) errors.push('Имейлът не е валиден.');
   if (!['econt', 'speedy'].includes(delivery.courier)) errors.push('Избери куриер.');
-  if (!['office', 'address'].includes(delivery.type)) errors.push('Избери тип доставка.');
+  if (!['office', 'locker', 'address'].includes(delivery.type)) errors.push('Избери тип доставка.');
   if (!String(delivery.city || '').trim()) errors.push('Градът е задължителен.');
-  if (!String(delivery.details || '').trim()) errors.push('Офисът или адресът е задължителен.');
+
+  const office = delivery.office || {};
+  const hasSelectedOffice = Boolean(String(office.id || delivery.officeId || '').trim());
+  const manualOfficeNote = String(delivery.manualOfficeNote || '').trim();
+
   if (delivery.type === 'office') {
-    const office = delivery.office || {};
-    if (!String(office.id || delivery.officeId || '').trim()) errors.push('Липсва избран офис.');
-    if (!String(office.name || delivery.officeName || '').trim()) errors.push('Липсва име на офис.');
+    if (!hasSelectedOffice && !manualOfficeNote) {
+      errors.push('Избери офис от списъка или напиши желания офис.');
+    }
+  } else if (delivery.type === 'locker') {
+    if (!manualOfficeNote) errors.push('Напиши желания автомат за доставка.');
+  } else if (delivery.type === 'address') {
+    if (!String(delivery.details || '').trim()) errors.push('Адресът за доставка е задължителен.');
   }
   if (!body.gdpr) errors.push('Необходимо е съгласие за обработка на данните.');
+  if (body.safetyConsent !== true) errors.push('Необходимо е потвърждение за безопасност.');
 
   const kitSize = String(order.kitSize || '');
   if (!['3', '5', '7'].includes(kitSize)) errors.push('Невалиден комплект.');
@@ -56,6 +65,12 @@ function buildOrderRecord(body) {
   const office = delivery.office || {};
   const order = body.order || {};
 
+  const manualOfficeNote = String(delivery.manualOfficeNote || '').trim();
+  const hasSelectedOffice =
+    delivery.type === 'office' && Boolean(String(office.id || delivery.officeId || '').trim());
+  let deliveryDetails = String(delivery.details || '').trim();
+  if (!deliveryDetails && manualOfficeNote) deliveryDetails = manualOfficeNote;
+
   return {
     product_name: PRODUCT_NAME,
     kit_name: order.kitName || null,
@@ -71,19 +86,14 @@ function buildOrderRecord(body) {
     courier: delivery.courier || null,
     delivery_type: delivery.type || null,
     city: String(delivery.city || '').trim(),
-    delivery_details: String(delivery.details || '').trim(),
-    office_id:
-      delivery.type === 'office'
-        ? String(office.id || delivery.officeId || '').trim() || null
-        : null,
-    office_name:
-      delivery.type === 'office'
-        ? String(office.name || delivery.officeName || '').trim() || null
-        : null,
-    office_address:
-      delivery.type === 'office'
-        ? String(office.address || delivery.officeAddress || '').trim() || null
-        : null,
+    delivery_details: deliveryDetails,
+    office_id: hasSelectedOffice ? String(office.id || delivery.officeId || '').trim() || null : null,
+    office_name: hasSelectedOffice
+      ? String(office.name || delivery.officeName || '').trim() || null
+      : null,
+    office_address: hasSelectedOffice
+      ? String(office.address || delivery.officeAddress || '').trim() || null
+      : null,
     payment_method: 'cash_on_delivery',
     note: String(body.note || '').trim() || null,
     status: 'new',

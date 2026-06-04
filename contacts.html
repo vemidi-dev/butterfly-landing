@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/legal.css">
 </head>
-<body>
+<body class="contacts-page">
   <header class="legal-header">
     <div class="container legal-header__inner">
       <a class="legal-logo" href="/index.html">
@@ -20,32 +20,104 @@
     </div>
   </header>
 
-  <main class="legal-main">
+  <main class="contacts-main">
     <div class="container">
-      <article class="legal-page">
-        <h1>Контакти</h1>
-        <p class="legal-meta">Ще се радваме да помогнем при въпроси за поръчка, доставка или персонализация.</p>
+      <article class="contacts-card">
+        <header class="contacts-card__head">
+          <h1 class="contacts-card__title">Контакти</h1>
+          <p class="contacts-card__lead">Най-бързо ще ни откриете в социалните мрежи. Очакваме Ви с удоволствие!</p>
+        </header>
 
-        <h2>Данни за контакт</h2>
-        <p><strong>Търговец:</strong> Дрийм Гифтс ЕООД</p>
-        <p><strong>Имейл:</strong> <a href="mailto:vemidi.crafts@gmail.com">vemidi.crafts@gmail.com</a></p>
-        <p><strong>Телефон:</strong> <a href="tel:+359895627631">0895627631</a></p>
-        <p><strong>Адрес:</strong> София, Младост 3, бл.377</p>
+        <div class="contacts-social-grid">
+          <a class="contacts-social-card" href="https://www.facebook.com/profile.php?id=100090185474431" target="_blank" rel="noopener noreferrer" aria-label="Facebook страница Подари Ми Спомен - VeMiDi Crafts">
+            <span class="contacts-social-card__icon" aria-hidden="true">
+              <img src="/assets/icons/icon-facebook.svg" alt="" width="28" height="28">
+            </span>
+            <span class="contacts-social-card__text">
+              <span class="contacts-social-card__label">Facebook</span>
+              <span class="contacts-social-card__handle">Подари Ми Спомен - VeMiDi Crafts</span>
+            </span>
+          </a>
+          <a class="contacts-social-card" href="https://www.instagram.com/podari.mi.spomen/" target="_blank" rel="noopener noreferrer" aria-label="Instagram профил podari.mi.spomen">
+            <span class="contacts-social-card__icon" aria-hidden="true">
+              <img src="/assets/icons/icon-instagram.svg" alt="" width="28" height="28">
+            </span>
+            <span class="contacts-social-card__text">
+              <span class="contacts-social-card__label">Instagram</span>
+              <span class="contacts-social-card__handle contacts-social-card__handle--nowrap">podari.mi.spomen</span>
+            </span>
+          </a>
+          <a class="contacts-social-card" href="https://www.tiktok.com/@vemidi.crafts" target="_blank" rel="noopener noreferrer" aria-label="TikTok профил @vemidi.crafts">
+            <span class="contacts-social-card__icon" aria-hidden="true">
+              <img src="/assets/icons/icon-tiktok.svg" alt="" width="28" height="28">
+            </span>
+            <span class="contacts-social-card__text">
+              <span class="contacts-social-card__label">TikTok</span>
+              <span class="contacts-social-card__handle contacts-social-card__handle--nowrap">@vemidi.crafts</span>
+            </span>
+          </a>
+          <a class="contacts-social-card contacts-social-card--email" href="mailto:vemidi.crafts@gmail.com" aria-label="Изпрати имейл до VeMiDi crafts">
+            <span class="contacts-social-card__icon" aria-hidden="true">
+              <img src="/assets/icons/icon-email.svg" alt="" width="28" height="28">
+            </span>
+            <span class="contacts-social-card__text">
+              <span class="contacts-social-card__label">Имейл</span>
+              <span class="contacts-social-card__handle contacts-social-card__handle--email">vemidi.crafts@gmail.com</span>
+            </span>
+          </a>
+        </div>
 
-        <h2>Работно време (пример)</h2>
-        <p>Понеделник - Петък: 09:00 - 18:00 ч.</p>
-        <p>Събота и Неделя: почивни дни</p>
-
-        <h2>За запитване</h2>
-        <p>Най-бързо ще ни откриете по имейл. Ако запитването е за конкретна поръчка, добавете име и телефон, за да Ви отговорим по-лесно.</p>
+        <div class="contacts-info-grid">
+          <section class="contacts-info-card" aria-labelledby="contacts-info-contact">
+            <h2 id="contacts-info-contact" class="contacts-info-card__title">Имейл и телефон</h2>
+            <ul class="contacts-info-card__list">
+              <li>
+                <span class="contacts-info-card__label">Имейл:</span>
+                <a href="mailto:vemidi.crafts@gmail.com">vemidi.crafts@gmail.com</a>
+              </li>
+              <li>
+                <span class="contacts-info-card__label">Телефон:</span>
+                <a href="tel:+359895627631">0895627631</a>
+              </li>
+            </ul>
+          </section>
+          <section class="contacts-info-card" aria-labelledby="contacts-info-trader">
+            <h2 id="contacts-info-trader" class="contacts-info-card__title">Данни за търговеца</h2>
+            <ul class="contacts-info-card__list">
+              <li>
+                <span class="contacts-info-card__label">Търговец:</span>
+                <span>Дрийм Гифтс ЕООД</span>
+              </li>
+              <li>
+                <span class="contacts-info-card__label">Адрес:</span>
+                <span>София, Младост 2, бл.210</span>
+              </li>
+            </ul>
+          </section>
+        </div>
       </article>
     </div>
   </main>
 
   <footer class="site-footer">
     <div class="container site-footer__inner">
-      <img class="site-footer__logo" src="/assets/logo.png" alt="VeMiDi crafts">
-      <p class="site-footer__tagline">Ръчно изработени с любов</p>
+      <section class="site-footer__social" aria-labelledby="footer-social-heading">
+        <h2 id="footer-social-heading" class="site-footer__social-title">Последвай VeMiDi crafts</h2>
+        <div class="social-links social-links--footer">
+          <a class="social-links__link social-links__link--text" href="https://www.facebook.com/profile.php?id=100090185474431" target="_blank" rel="noopener noreferrer" aria-label="Facebook страница Подари Ми Спомен - VeMiDi Crafts">
+            <img class="social-links__icon" src="/assets/icons/icon-facebook.svg" alt="" width="18" height="18">
+            <span>Facebook</span>
+          </a>
+          <a class="social-links__link social-links__link--text" href="https://www.instagram.com/podari.mi.spomen/" target="_blank" rel="noopener noreferrer" aria-label="Instagram профил podari.mi.spomen">
+            <img class="social-links__icon" src="/assets/icons/icon-instagram.svg" alt="" width="18" height="18">
+            <span>Instagram</span>
+          </a>
+          <a class="social-links__link social-links__link--text" href="https://www.tiktok.com/@vemidi.crafts" target="_blank" rel="noopener noreferrer" aria-label="TikTok профил @vemidi.crafts">
+            <img class="social-links__icon" src="/assets/icons/icon-tiktok.svg" alt="" width="18" height="18">
+            <span>TikTok</span>
+          </a>
+        </div>
+      </section>
       <nav class="site-footer__links" aria-label="Правни и информационни страници">
         <a href="/terms.html">Общи условия</a>
         <a href="/privacy.html">Поверителност</a>

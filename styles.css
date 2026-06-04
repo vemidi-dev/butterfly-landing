@@ -369,7 +369,7 @@ label { margin-right: 0; }
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: url('assets/hero-leaves.svg') no-repeat 0% center / auto 100%;
+  background: url('/assets/hero-leaves.svg') no-repeat 0% center / auto 100%;
   opacity: 0.42;
 }
 .hero__defs {
@@ -1140,18 +1140,10 @@ label { margin-right: 0; }
   height: 1.35rem;
   line-height: 1;
 }
-.steps-benefits__icon--heart {
-  color: #e8a0a8;
-  font-size: 1.05rem;
-}
-.steps-benefits__icon--leaf {
-  color: #7a9a72;
-}
-.steps-benefits__icon--gift {
-  color: #d4a088;
-}
-.steps-benefits__icon--butterfly {
-  color: #b8a8c8;
+.steps-benefits__icon .ui-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  opacity: 0.72;
 }
 .steps-benefits__text {
   font-size: 14px;

@@ -1,6 +1,24 @@
 {
   "version": 2,
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/tvorcheski-komplekti/vulshebni-peperudi/",
+      "permanent": true
+    }
+  ],
   "rewrites": [
-    { "source": "/admin", "destination": "/admin/index.html" }
+    {
+      "source": "/tvorcheski-komplekti/vulshebni-peperudi",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/tvorcheski-komplekti/vulshebni-peperudi/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    }
   ]
 }

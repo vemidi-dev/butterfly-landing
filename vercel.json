@@ -5,6 +5,36 @@
       "source": "/",
       "destination": "/tvorcheski-komplekti/vulshebni-peperudi/",
       "permanent": true
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html",
+      "permanent": true
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html",
+      "permanent": true
+    },
+    {
+      "source": "/cookies",
+      "destination": "/cookies.html",
+      "permanent": true
+    },
+    {
+      "source": "/delivery",
+      "destination": "/delivery.html",
+      "permanent": true
+    },
+    {
+      "source": "/returns",
+      "destination": "/returns.html",
+      "permanent": true
+    },
+    {
+      "source": "/contacts",
+      "destination": "/contacts.html",
+      "permanent": true
     }
   ],
   "rewrites": [

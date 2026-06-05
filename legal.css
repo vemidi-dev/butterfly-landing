@@ -145,6 +145,8 @@ a {
 }
 
 .site-footer {
+  position: relative;
+  z-index: 2;
   background: var(--bg);
   padding: 1.75rem 0;
   text-align: center;
@@ -176,6 +178,8 @@ a {
 }
 
 .site-footer__links a {
+  position: relative;
+  z-index: 1;
   font-size: 0.86rem;
   color: var(--text);
   opacity: 0.82;

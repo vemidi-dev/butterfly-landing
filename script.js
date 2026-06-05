@@ -26,12 +26,12 @@
       name: 'Комплект Стандарт',
       shortName: 'Стандарт',
       figures: '5 фигурки',
-      composition: '(3 пеперуди + 2 водни кончета)',
+      composition: '(2 пеперуди + 3 водни кончета)',
       previewImage: '/assets/personal.webp',
       previewAlt: 'Комплект Стандарт - готова украса',
       items: [
-        '3 дървени пеперуди',
-        '2 дървени водни кончета',
+        '2 дървени пеперуди',
+        '3 дървени водни кончета',
         'конци за закачане',
         'дървени мъниста',
         'дървена закачалка',
@@ -578,6 +578,7 @@
     checkoutSuccessView.hidden = true;
     checkoutModal.classList.add('is-open');
     checkoutModal.setAttribute('aria-hidden', 'false');
+    checkoutModal.removeAttribute('inert');
     document.body.style.overflow = 'hidden';
 
     const firstField = checkoutForm?.querySelector('#customerName');
@@ -587,6 +588,7 @@
   function closeCheckoutModal() {
     checkoutModal.classList.remove('is-open');
     checkoutModal.setAttribute('aria-hidden', 'true');
+    checkoutModal.setAttribute('inert', '');
     document.body.style.overflow = '';
     clearCheckoutErrors();
     checkoutSubmitBtn.disabled = false;

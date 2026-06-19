@@ -1,0 +1,19 @@
+{
+  "name": "butterfly-landing",
+  "private": true,
+  "version": "1.0.0",
+  "description": "VeMiDi crafts butterflies campaign landing page",
+  "scripts": {
+    "build": "node scripts/generate-public-config.js",
+    "test": "node --test tests/**/*.test.js",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@types/node": "^22.15.30",
+    "eslint": "^9.28.0",
+    "globals": "^16.2.0",
+    "typescript": "^5.8.3"
+  }
+}

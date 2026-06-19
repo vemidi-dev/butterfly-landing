@@ -1,4 +1,4 @@
-const { PRODUCT_NAME, COURIER_LABELS, DELIVERY_LABELS, COLORING_LABELS } = require('./constants');
+const { COURIER_LABELS, DELIVERY_LABELS, COLORING_LABELS } = require('./constants');
 const { getEnv } = require('./supabase');
 const { formatOrderDate, formatOrderPriceEuro } = require('./orders-format');
 

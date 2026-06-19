@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api
-Sitemap: https://vemidi-crafts.com/sitemap.xml
+Sitemap: https://special.vemidi-crafts.com/sitemap.xml

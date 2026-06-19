@@ -3,7 +3,17 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/tvorcheski-komplekti/vulshebni-peperudi/",
+      "destination": "/valshebni-peperudi",
+      "permanent": true
+    },
+    {
+      "source": "/tvorcheski-komplekti/vulshebni-peperudi",
+      "destination": "/valshebni-peperudi",
+      "permanent": true
+    },
+    {
+      "source": "/tvorcheski-komplekti/vulshebni-peperudi/",
+      "destination": "/valshebni-peperudi",
       "permanent": true
     },
     {
@@ -39,11 +49,11 @@
   ],
   "rewrites": [
     {
-      "source": "/tvorcheski-komplekti/vulshebni-peperudi",
+      "source": "/valshebni-peperudi",
       "destination": "/index.html"
     },
     {
-      "source": "/tvorcheski-komplekti/vulshebni-peperudi/",
+      "source": "/valshebni-peperudi/",
       "destination": "/index.html"
     },
     {

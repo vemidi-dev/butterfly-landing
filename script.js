@@ -72,6 +72,13 @@
   const CHECKOUT_ERROR_MESSAGE =
     'Възникна проблем при изпращането. Моля, опитай отново или се свържи с нас.';
 
+  /** @deprecated Legacy landing checkout — disabled; orders go through store /campaign-checkout */
+  const LEGACY_CHECKOUT_ENABLED = false;
+
+  const handoff = window.VeMidiCheckoutHandoff;
+  const publicConfig = window.__VEMIDI_PUBLIC_CONFIG__ || {};
+  let isRedirectingToStore = false;
+
   const form = document.getElementById('configForm');
   const summaryPreviewImg = document.getElementById('summaryPreviewImg');
   const summaryBadges = document.getElementById('summaryBadges');
@@ -461,7 +468,7 @@
       const offices = Array.isArray(data.offices) ? data.offices : [];
       officesCache.set(cacheKey, offices);
       renderOffices(offices);
-    } catch (err) {
+    } catch {
       setOfficeLoading('Няма налични офиси');
       if (officeHint) {
         officeHint.textContent =
@@ -567,6 +574,42 @@
     };
   }
 
+  function redirectToStoreCheckout(configState) {
+    if (isRedirectingToStore) return;
+
+    if (!handoff?.resolveStoreHandoff) {
+      showErrors([
+        'Поръчката временно не е налична. Моля, опитай отново по-късно или се свържи с нас.',
+      ]);
+      return;
+    }
+
+    const useSafeFallback = publicConfig.safeHandoffFallback !== false;
+    const handoffState = useSafeFallback ? {} : configState;
+    const result = handoff.resolveStoreHandoff(publicConfig, handoffState);
+    if (!result.ok) {
+      showErrors([result.error]);
+      return;
+    }
+
+    try {
+      handoff.assertHandoffUrlSafe(result.url);
+    } catch (err) {
+      console.error('Unsafe campaign checkout URL:', err);
+      showErrors(['Възникна проблем при пренасочването. Моля, свържи се с нас.']);
+      return;
+    }
+
+    isRedirectingToStore = true;
+    if (orderBtn) {
+      orderBtn.disabled = true;
+      orderBtn.textContent = 'Пренасочване...';
+    }
+
+    window.location.assign(result.url);
+  }
+
+  /** @deprecated Legacy landing checkout modal */
   function openCheckoutModal() {
     const state = getFormState();
     const { total } = calculatePrice(state);
@@ -603,6 +646,7 @@
     checkoutSuccessView.querySelector('[data-close-checkout]')?.focus();
   }
 
+  /** @deprecated Legacy landing order API — POST /api/orders */
   async function submitOrder(event) {
     event.preventDefault();
     clearCheckoutErrors();
@@ -718,41 +762,50 @@
     });
   });
 
-  orderBtn.addEventListener('click', () => {
+  orderBtn?.addEventListener('click', () => {
+    if (isRedirectingToStore) return;
+
     const state = getFormState();
-    const errors = validateConfigurator(state);
-    if (errors.length) {
-      showErrors(errors);
-      if (state.personalize && !state.childName) childNameInput?.focus();
-      return;
+    const useSafeFallback = publicConfig.safeHandoffFallback !== false;
+
+    if (!useSafeFallback) {
+      const errors = validateConfigurator(state);
+      if (errors.length) {
+        showErrors(errors);
+        if (state.personalize && !state.childName) childNameInput?.focus();
+        return;
+      }
     }
+
     clearErrors();
-    openCheckoutModal();
+    redirectToStoreCheckout(state);
   });
 
-  checkoutForm?.addEventListener('submit', submitOrder);
+  if (LEGACY_CHECKOUT_ENABLED) {
+    checkoutForm?.addEventListener('submit', submitOrder);
 
-  checkoutForm?.querySelectorAll('input[name="deliveryType"]').forEach((input) => {
-    input.addEventListener('change', updateDeliveryDetailsLabel);
-  });
-  checkoutForm?.querySelectorAll('input[name="courier"]').forEach((input) => {
-    input.addEventListener('change', queueOfficesLoad);
-  });
+    checkoutForm?.querySelectorAll('input[name="deliveryType"]').forEach((input) => {
+      input.addEventListener('change', updateDeliveryDetailsLabel);
+    });
+    checkoutForm?.querySelectorAll('input[name="courier"]').forEach((input) => {
+      input.addEventListener('change', queueOfficesLoad);
+    });
 
-  cityInput?.addEventListener('input', queueOfficesLoad);
-  officeSelect?.addEventListener('change', clearCheckoutErrors);
+    cityInput?.addEventListener('input', queueOfficesLoad);
+    officeSelect?.addEventListener('change', clearCheckoutErrors);
 
-  checkoutForm?.addEventListener('input', clearCheckoutErrors);
+    checkoutForm?.addEventListener('input', clearCheckoutErrors);
 
-  document.querySelectorAll('[data-close-checkout]').forEach((el) => {
-    el.addEventListener('click', closeCheckoutModal);
-  });
+    document.querySelectorAll('[data-close-checkout]').forEach((el) => {
+      el.addEventListener('click', closeCheckoutModal);
+    });
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && checkoutModal?.classList.contains('is-open')) {
-      closeCheckoutModal();
-    }
-  });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && checkoutModal?.classList.contains('is-open')) {
+        closeCheckoutModal();
+      }
+    });
+  }
 
   navToggle.addEventListener('click', () => {
     const open = mainNav.classList.toggle('is-open');
@@ -771,7 +824,13 @@
 
   setFieldExpanded(nameField, false);
   updateSummary();
-  updateDeliveryDetailsLabel();
+  if (LEGACY_CHECKOUT_ENABLED) {
+    updateDeliveryDetailsLabel();
+  } else {
+    void openCheckoutModal;
+    void submitOrder;
+    void closeCheckoutModal;
+  }
 
   const backToTop = document.getElementById('backToTop');
   const SCROLL_SHOW_BACK_TO_TOP = 300;

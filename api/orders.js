@@ -1,3 +1,4 @@
+/** @deprecated Legacy landing checkout API — not used by campaign CTA after store handoff. */
 const { PRODUCT_NAME, CURRENCY } = require('./lib/constants');
 const { json, parseBody, setCors, handleOptions } = require('./lib/http');
 const { insertOrder, mapSupabaseError } = require('./lib/supabase');

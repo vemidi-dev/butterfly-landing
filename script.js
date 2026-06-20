@@ -77,7 +77,7 @@
 
   const handoff = window.VeMidiCheckoutHandoff;
   const publicConfig = window.__VEMIDI_PUBLIC_CONFIG__ || {};
-  let isRedirectingToStore = false;
+  let isSubmittingToStore = false;
 
   const form = document.getElementById('configForm');
   const summaryPreviewImg = document.getElementById('summaryPreviewImg');
@@ -93,9 +93,9 @@
   const priceBreakdown = document.getElementById('priceBreakdown');
   const totalPriceEl = document.getElementById('totalPrice');
   const configErrors = document.getElementById('configErrors');
-  const nameField = document.getElementById('nameField');
+  const nameField = document.getElementById('personalizeHintField');
+  const personalizationNameInput = document.getElementById('personalizationName');
   const personalizeToggle = document.getElementById('personalizeToggle');
-  const childNameInput = document.getElementById('childName');
   const orderBtn = document.getElementById('orderBtn');
   const checkoutModal = document.getElementById('checkoutModal');
   const checkoutForm = document.getElementById('checkoutForm');
@@ -147,7 +147,7 @@
       size: fd.get('size') || '3',
       coloring: fd.get('coloring') || 'paints',
       personalize: fd.get('personalize') === 'on',
-      childName: (fd.get('childName') || '').trim(),
+      personalizationName: String(fd.get('personalizationName') || '').trim(),
     };
   }
 
@@ -174,6 +174,7 @@
     configErrors.hidden = true;
     configErrors.innerHTML = '';
     nameField?.classList.remove('config-field--error');
+    personalizationNameInput?.classList.remove('config-field--error');
   }
 
   function showErrors(messages) {
@@ -196,10 +197,8 @@
 
     if (summaryBadges) {
       const badges = [kit.figures, coloring.label];
-      if (state.personalize && state.childName) {
-        badges.push(`Име: ${state.childName}`);
-      } else if (state.personalize) {
-        badges.push('Име на табелката');
+      if (state.personalize) {
+        badges.push('С персонализация');
       }
       summaryBadges.innerHTML = badges
         .map((text) => `<span class="summary-badge">${escapeHtml(text)}</span>`)
@@ -208,7 +207,9 @@
 
     if (summaryInfoTitle) {
       summaryInfoTitle.textContent = state.personalize
-        ? 'Персонализирано специално за детето'
+        ? state.personalizationName
+          ? `С персонализация: ${state.personalizationName}`
+          : 'С персонализация — добави име'
         : 'Готово творческо преживяване';
     }
 
@@ -221,17 +222,15 @@
 
     if (summaryRowPersonalTag) {
       summaryRowPersonalTag.textContent = state.personalize
-        ? 'Име на табелката'
+        ? state.personalizationName || 'С име'
         : 'Без име';
     }
     if (summaryRowPersonalDesc) {
-      if (state.personalize && state.childName) {
-        summaryRowPersonalDesc.textContent = `Име: ${state.childName}`;
-      } else if (state.personalize) {
-        summaryRowPersonalDesc.textContent = 'Въведи име за табелката по-долу';
-      } else {
-        summaryRowPersonalDesc.textContent = 'Може да добавиш персонализация към закачалката';
-      }
+      summaryRowPersonalDesc.textContent = state.personalize
+        ? state.personalizationName
+          ? 'Името ще бъде изпратено сигурно към магазина при поръчка.'
+          : 'Въведи име за гравиране на закачалката (до 50 символа).'
+        : 'Може да добавиш персонализация към закачалката';
     }
 
     if (priceBreakdown) {
@@ -255,14 +254,23 @@
     if (totalPriceEl) totalPriceEl.textContent = formatPrice(total);
   }
 
-  function validateConfigurator(state) {
-    const errors = [];
-    if (state.personalize && !state.childName) {
-      errors.push('Моля, въведи име на детето за персонализираната закачалка.');
-      nameField?.classList.add('config-field--error');
-      setFieldExpanded(nameField, true);
+  function validateConfigurator() {
+    if (publicConfig.safeHandoffFallback !== false || !handoff?.validateFormStateForHandoff) {
+      return [];
     }
-    return errors;
+
+    const result = handoff.validateFormStateForHandoff(getFormState());
+    if (result.ok) {
+      return [];
+    }
+
+    const state = getFormState();
+    if (state.personalize && !state.personalizationName) {
+      nameField?.classList.add('config-field--error');
+      personalizationNameInput?.classList.add('config-field--error');
+    }
+
+    return [result.error];
   }
 
   function getCheckoutFormData() {
@@ -326,7 +334,7 @@
     checkoutErrors.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  function validateCheckout(checkoutData, configState) {
+  function validateCheckout(checkoutData, _configState) {
     const errors = [];
     const fields = [];
 
@@ -370,9 +378,6 @@
     if (!checkoutData.gdpr) {
       errors.push('Необходимо е съгласие за обработка на данните.');
       fields.push('gdpr');
-    }
-    if (configState.personalize && !configState.childName) {
-      errors.push('Моля, въведи име на детето за персонализираната закачалка.');
     }
 
     fields.forEach((id) => {
@@ -519,8 +524,8 @@
       {
         label: 'Персонализация',
         value: state.personalize
-          ? state.childName
-            ? `Да - ${state.childName}`
+          ? state.personalizationName
+            ? `Да — ${state.personalizationName}`
             : 'Да'
           : 'Не',
       },
@@ -566,7 +571,7 @@
         coloring: configState.coloring,
         coloringLabel: COLORING_LABELS[configState.coloring],
         personalize: configState.personalize,
-        childName: configState.childName || null,
+        childName: null,
         totalPrice: total,
         paymentMethod: 'cash_on_delivery',
       },
@@ -574,8 +579,8 @@
     };
   }
 
-  function redirectToStoreCheckout(configState) {
-    if (isRedirectingToStore) return;
+  function submitToStore(configState) {
+    if (isSubmittingToStore) return;
 
     if (!handoff?.resolveStoreHandoff) {
       showErrors([
@@ -585,28 +590,55 @@
     }
 
     const useSafeFallback = publicConfig.safeHandoffFallback !== false;
-    const handoffState = useSafeFallback ? {} : configState;
+    const handoffState = useSafeFallback
+      ? {}
+      : {
+          size: configState.size,
+          coloring: configState.coloring,
+          personalize: configState.personalize,
+          personalizationName: configState.personalizationName,
+        };
     const result = handoff.resolveStoreHandoff(publicConfig, handoffState);
     if (!result.ok) {
       showErrors([result.error]);
       return;
     }
 
-    try {
-      handoff.assertHandoffUrlSafe(result.url);
-    } catch (err) {
-      console.error('Unsafe campaign checkout URL:', err);
-      showErrors(['Възникна проблем при пренасочването. Моля, свържи се с нас.']);
-      return;
-    }
-
-    isRedirectingToStore = true;
+    isSubmittingToStore = true;
     if (orderBtn) {
       orderBtn.disabled = true;
       orderBtn.textContent = 'Пренасочване...';
     }
 
-    window.location.assign(result.url);
+    if (result.mode === 'get') {
+      try {
+        handoff.assertHandoffUrlSafe(result.url);
+      } catch (err) {
+        console.error('Unsafe campaign checkout URL:', err);
+        isSubmittingToStore = false;
+        if (orderBtn) {
+          orderBtn.disabled = false;
+          orderBtn.textContent = 'Поръчай Вълшебни пеперуди ✨';
+        }
+        showErrors(['Възникна проблем при пренасочването. Моля, свържи се с нас.']);
+        return;
+      }
+
+      window.location.assign(result.url);
+      return;
+    }
+
+    try {
+      handoff.submitCampaignCheckoutPostHandoff(result);
+    } catch (err) {
+      console.error('Campaign checkout POST handoff failed:', err);
+      isSubmittingToStore = false;
+      if (orderBtn) {
+        orderBtn.disabled = false;
+        orderBtn.textContent = 'Поръчай Вълшебни пеперуди ✨';
+      }
+      showErrors(['Възникна проблем при изпращането. Моля, свържи се с нас.']);
+    }
   }
 
   /** @deprecated Legacy landing checkout modal */
@@ -652,17 +684,16 @@
     clearCheckoutErrors();
 
     const configState = getFormState();
-    const configErrorsList = validateConfigurator(configState);
+    const configErrorsList = validateConfigurator();
     const checkoutData = getCheckoutFormData();
     const checkoutErrorsList = validateCheckout(checkoutData, configState);
     const allErrors = [...configErrorsList, ...checkoutErrorsList];
 
     if (allErrors.length) {
       showCheckoutErrors(allErrors);
-      if (configState.personalize && !configState.childName) {
+      if (configErrorsList.length) {
         closeCheckoutModal();
         showErrors(configErrorsList);
-        childNameInput?.focus();
       }
       return;
     }
@@ -752,6 +783,12 @@
 
   personalizeToggle?.addEventListener('change', () => {
     setFieldExpanded(nameField, personalizeToggle.checked);
+    if (personalizationNameInput) {
+      personalizationNameInput.required = personalizeToggle.checked;
+      if (!personalizeToggle.checked) {
+        personalizationNameInput.value = '';
+      }
+    }
     updateSummary();
   });
 
@@ -763,22 +800,17 @@
   });
 
   orderBtn?.addEventListener('click', () => {
-    if (isRedirectingToStore) return;
+    if (isSubmittingToStore) return;
 
     const state = getFormState();
-    const useSafeFallback = publicConfig.safeHandoffFallback !== false;
-
-    if (!useSafeFallback) {
-      const errors = validateConfigurator(state);
-      if (errors.length) {
-        showErrors(errors);
-        if (state.personalize && !state.childName) childNameInput?.focus();
-        return;
-      }
+    const errors = validateConfigurator();
+    if (errors.length) {
+      showErrors(errors);
+      return;
     }
 
     clearErrors();
-    redirectToStoreCheckout(state);
+    submitToStore(state);
   });
 
   if (LEGACY_CHECKOUT_ENABLED) {
@@ -823,6 +855,9 @@
   });
 
   setFieldExpanded(nameField, false);
+  if (personalizationNameInput) {
+    personalizationNameInput.required = false;
+  }
   updateSummary();
   if (LEGACY_CHECKOUT_ENABLED) {
     updateDeliveryDetailsLabel();

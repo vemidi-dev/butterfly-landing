@@ -97,7 +97,7 @@
         "name": "Може ли да бъде персонализиран с име?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Да. Може да се добави гравирано име върху дървената закачалка срещу допълнително 2,50 €. Така комплектът става по-личен и подходящ за подарък."
+          "text": "Да. Може да се добави гравирано име върху дървената закачалка срещу допълнително 2,50 €. Името се въвежда в конфигуратора на тази страница и се изпраща сигурно към магазина — не присъства в URL."
         }
       },
       {
@@ -588,9 +588,18 @@
                       <span class="config-extra__price">+2,50 €</span>
                     </div>
                   </div>
-                  <div class="config-field config-field--collapsed" id="nameField">
-                    <label for="childName">Име</label>
-                    <input type="text" id="childName" name="childName" placeholder="Например: Мая" maxlength="24">
+                  <div class="config-field config-field--collapsed" id="personalizeHintField">
+                    <label class="config-field__label" for="personalizationName">Име за гравиране</label>
+                    <input
+                      type="text"
+                      class="config-field__input"
+                      name="personalizationName"
+                      id="personalizationName"
+                      maxlength="50"
+                      autocomplete="off"
+                      placeholder="Например: Мария"
+                    >
+                    <p class="config-field__hint">До 50 символа. Изпращаме името само към магазина при поръчка — не в URL.</p>
                   </div>
                 </div>
               </fieldset>
@@ -768,7 +777,7 @@
         </div>
         <div class="personalize__copy">
           <h2 class="section__title">Персонализиран подарък за дете с име</h2>
-          <p class="personalize__lead">Дървена закачалка с името на детето - нежно допълнение, което прави подаръка незабравим.</p>
+          <p class="personalize__lead">Дървена закачалка с гравирано име — нежно допълнение, което прави подаръка по-личен. Ако избереш персонализация, името се попълва тук и се изпраща сигурно към магазина.</p>
           <ul class="personalize__perks">
             <li>Гравирано върху дърво</li>
             <li>Остава години наред</li>
@@ -843,7 +852,7 @@
           </details>
           <details class="faq-item">
             <summary>Може ли да бъде персонализиран с име?</summary>
-            <p>Да. Може да се добави гравирано име върху дървената закачалка срещу допълнително 2,50 €. Така комплектът става по-личен и подходящ за подарък.</p>
+            <p>Да. Може да се добави гравирано име върху дървената закачалка срещу допълнително 2,50 €. Името се въвежда в конфигуратора на тази страница и се изпраща сигурно към магазина — не присъства в URL.</p>
           </details>
           <details class="faq-item">
             <summary>Нужно ли е лепило?</summary>

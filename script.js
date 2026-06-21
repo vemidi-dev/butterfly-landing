@@ -76,8 +76,11 @@
   const LEGACY_CHECKOUT_ENABLED = false;
 
   const handoff = window.VeMidiCheckoutHandoff;
+  const handoffReset = window.VeMidiLandingHandoffReset;
   const publicConfig = window.__VEMIDI_PUBLIC_CONFIG__ || {};
   let isSubmittingToStore = false;
+  const ORDER_BTN_DEFAULT_TEXT = handoffReset?.DEFAULT_ORDER_BUTTON_TEXT
+    || 'Поръчай Вълшебни пеперуди ✨';
 
   const form = document.getElementById('configForm');
   const summaryPreviewImg = document.getElementById('summaryPreviewImg');
@@ -579,6 +582,25 @@
     };
   }
 
+  function resetConfiguratorAfterHandoff() {
+    if (!handoffReset?.consumeLandingHandoffResetMarker(window.sessionStorage)) {
+      return false;
+    }
+
+    isSubmittingToStore = false;
+    handoffReset.applyConfiguratorDomReset({
+      form,
+      personalizeToggle,
+      nameField,
+      personalizationNameInput,
+      configErrors,
+      orderBtn,
+      orderBtnDefaultText: ORDER_BTN_DEFAULT_TEXT,
+    });
+    updateSummary();
+    return true;
+  }
+
   function submitToStore(configState) {
     if (isSubmittingToStore) return;
 
@@ -618,7 +640,7 @@
         isSubmittingToStore = false;
         if (orderBtn) {
           orderBtn.disabled = false;
-          orderBtn.textContent = 'Поръчай Вълшебни пеперуди ✨';
+          orderBtn.textContent = ORDER_BTN_DEFAULT_TEXT;
         }
         showErrors(['Възникна проблем при пренасочването. Моля, свържи се с нас.']);
         return;
@@ -629,13 +651,15 @@
     }
 
     try {
+      handoffReset?.markLandingHandoffResetPending(window.sessionStorage);
       handoff.submitCampaignCheckoutPostHandoff(result);
     } catch (err) {
       console.error('Campaign checkout POST handoff failed:', err);
+      handoffReset?.consumeLandingHandoffResetMarker(window.sessionStorage);
       isSubmittingToStore = false;
       if (orderBtn) {
         orderBtn.disabled = false;
-        orderBtn.textContent = 'Поръчай Вълшебни пеперуди ✨';
+        orderBtn.textContent = ORDER_BTN_DEFAULT_TEXT;
       }
       showErrors(['Възникна проблем при изпращането. Моля, свържи се с нас.']);
     }
@@ -874,7 +898,12 @@
     personalizationNameInput.required = false;
   }
 
+  window.addEventListener('pageshow', () => {
+    resetConfiguratorAfterHandoff();
+  });
+
   showStoreSourceNotice();
+  resetConfiguratorAfterHandoff();
   updateSummary();
 
   if (LEGACY_CHECKOUT_ENABLED) {

@@ -9,11 +9,15 @@ const handoffReset = require('../lib/landing-handoff-reset');
 const {
   markLandingHandoffResetPending,
   consumeLandingHandoffResetMarker,
+  clearLandingHandoffResetMarker,
+  shouldResetLandingConfiguratorAfterHandoff,
   applyConfiguratorDomReset,
   readConfiguratorFormState,
   isConfiguratorInDefaultState,
   getDefaultConfiguratorState,
   LANDING_HANDOFF_RESET_MARKER,
+  DEFAULT_ORDER_BUTTON_TEXT,
+  HANDOFF_SUBMITTING_BUTTON_TEXT,
 } = handoffReset;
 
 function createMockStorage() {
@@ -140,7 +144,9 @@ describe('landing handoff reset marker', () => {
     const script = fs.readFileSync(path.join(process.cwd(), 'script.js'), 'utf8');
     assert.match(script, /window\.addEventListener\('pageshow'/);
     assert.match(script, /resetConfiguratorAfterHandoff\(\)/);
-    assert.match(script, /consumeLandingHandoffResetMarker\(window\.sessionStorage\)/);
+    assert.match(script, /shouldResetLandingConfiguratorAfterHandoff\(/);
+    assert.match(script, /clearLandingHandoffResetMarker\(window\.sessionStorage\)/);
+    assert.doesNotMatch(script, /showStoreSourceNotice\(\);\s*\n\s*resetConfiguratorAfterHandoff\(\)/);
   });
 });
 
@@ -199,5 +205,82 @@ describe('landing configurator reset after checkout handoff', () => {
     const storage = createMockStorage();
     assert.equal(consumeLandingHandoffResetMarker(storage), false);
     assert.equal(consumeLandingHandoffResetMarker(storage), false);
+  });
+
+  it('does not reset on first pageshow without marker or loading state', () => {
+    const storage = createMockStorage();
+    const orderBtn = {
+      disabled: false,
+      textContent: DEFAULT_ORDER_BUTTON_TEXT,
+    };
+
+    assert.equal(
+      shouldResetLandingConfiguratorAfterHandoff({
+        storage,
+        isSubmittingToStore: false,
+        orderBtn,
+      }),
+      false,
+    );
+  });
+
+  it('browser back without marker but persisted submitting state → full reset on pageshow', () => {
+    const storage = createMockStorage();
+    const dom = createConfiguratorDom({
+      size: '7',
+      coloring: 'markers',
+      personalize: true,
+      personalizationName: 'Мария',
+      nameFieldCollapsed: false,
+    });
+    let isSubmittingToStore = true;
+
+    assert.equal(storage.getItem(LANDING_HANDOFF_RESET_MARKER), null);
+    assert.equal(
+      shouldResetLandingConfiguratorAfterHandoff({
+        storage,
+        isSubmittingToStore,
+        orderBtn: dom.orderBtn,
+      }),
+      true,
+    );
+
+    clearLandingHandoffResetMarker(storage);
+    isSubmittingToStore = false;
+    applyConfiguratorDomReset(dom);
+
+    const state = readConfiguratorFormState(dom.form);
+    assert.equal(isConfiguratorInDefaultState(state), true);
+    assert.equal(isSubmittingToStore, false);
+    assert.equal(dom.orderBtn.disabled, false);
+    assert.equal(dom.orderBtn.textContent, DEFAULT_ORDER_BUTTON_TEXT);
+    assert.equal(dom.personalizeToggle.checked, false);
+    assert.equal(dom.personalizationNameInput.value, '');
+    assert.ok(dom.nameField.classList.has('config-field--collapsed'));
+    assert.equal(storage.getItem(LANDING_HANDOFF_RESET_MARKER), null);
+  });
+
+  it('detects stale handoff state from disabled order button without marker', () => {
+    const storage = createMockStorage();
+    assert.equal(
+      shouldResetLandingConfiguratorAfterHandoff({
+        storage,
+        isSubmittingToStore: false,
+        orderBtn: { disabled: true, textContent: DEFAULT_ORDER_BUTTON_TEXT },
+      }),
+      true,
+    );
+  });
+
+  it('detects stale handoff state from redirecting button label without marker', () => {
+    const storage = createMockStorage();
+    assert.equal(
+      shouldResetLandingConfiguratorAfterHandoff({
+        storage,
+        isSubmittingToStore: false,
+        orderBtn: { disabled: false, textContent: HANDOFF_SUBMITTING_BUTTON_TEXT },
+      }),
+      true,
+    );
   });
 });

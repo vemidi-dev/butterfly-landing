@@ -81,6 +81,8 @@
   let isSubmittingToStore = false;
   const ORDER_BTN_DEFAULT_TEXT = handoffReset?.DEFAULT_ORDER_BUTTON_TEXT
     || 'Поръчай Вълшебни пеперуди ✨';
+  const ORDER_BTN_SUBMITTING_TEXT = handoffReset?.HANDOFF_SUBMITTING_BUTTON_TEXT
+    || 'Пренасочване...';
 
   const form = document.getElementById('configForm');
   const summaryPreviewImg = document.getElementById('summaryPreviewImg');
@@ -583,10 +585,15 @@
   }
 
   function resetConfiguratorAfterHandoff() {
-    if (!handoffReset?.consumeLandingHandoffResetMarker(window.sessionStorage)) {
+    if (!handoffReset?.shouldResetLandingConfiguratorAfterHandoff({
+      storage: window.sessionStorage,
+      isSubmittingToStore,
+      orderBtn,
+    })) {
       return false;
     }
 
+    handoffReset.clearLandingHandoffResetMarker(window.sessionStorage);
     isSubmittingToStore = false;
     handoffReset.applyConfiguratorDomReset({
       form,
@@ -629,7 +636,7 @@
     isSubmittingToStore = true;
     if (orderBtn) {
       orderBtn.disabled = true;
-      orderBtn.textContent = 'Пренасочване...';
+      orderBtn.textContent = ORDER_BTN_SUBMITTING_TEXT;
     }
 
     if (result.mode === 'get') {
@@ -903,7 +910,6 @@
   });
 
   showStoreSourceNotice();
-  resetConfiguratorAfterHandoff();
   updateSummary();
 
   if (LEGACY_CHECKOUT_ENABLED) {

@@ -760,6 +760,102 @@
     }
   }
 
+  function applyHandoffFormState(formState) {
+    if (!handoff?.isValidStoreHandoffFormState?.(formState)) {
+      return false;
+    }
+
+    const sizeInput = form.querySelector(`input[name="size"][value="${formState.size}"]`);
+    if (sizeInput) {
+      sizeInput.checked = true;
+    }
+
+    const coloringInput = form.querySelector(
+      `input[name="coloring"][value="${formState.coloring}"]`
+    );
+    if (coloringInput) {
+      coloringInput.checked = true;
+    }
+
+    if (personalizeToggle) {
+      personalizeToggle.checked = Boolean(formState.personalize);
+    }
+
+    if (personalizationNameInput) {
+      personalizationNameInput.value = formState.personalize
+        ? String(formState.personalizationName || '')
+        : '';
+      personalizationNameInput.required = Boolean(formState.personalize);
+    }
+
+    setFieldExpanded(nameField, Boolean(formState.personalize));
+    updateSummary();
+    return true;
+  }
+
+  function shouldUseStorePreviewConsume() {
+    const hostname = window.location.hostname.toLowerCase();
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.vercel.app');
+  }
+
+  async function fetchLandingHandoffConsume() {
+    const response = await fetch('/api/store-handoff-consume', {
+      method: 'GET',
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json().catch(() => null);
+    return data?.ok && data.formState ? data : null;
+  }
+
+  async function fetchStorePreviewHandoffConsume() {
+    const storeUrl = String(publicConfig.storeUrl || '').trim();
+    if (!storeUrl) {
+      return null;
+    }
+
+    let consumeUrl;
+    try {
+      consumeUrl = new URL('/api/campaign-landing-handoff/consume', storeUrl);
+    } catch {
+      return null;
+    }
+
+    const response = await fetch(consumeUrl.toString(), {
+      method: 'GET',
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json().catch(() => null);
+    return data?.ok && data.formState ? data : null;
+  }
+
+  async function consumeStoreHandoffPrefill() {
+    try {
+      let data = null;
+
+      if (shouldUseStorePreviewConsume()) {
+        data = (await fetchStorePreviewHandoffConsume()) || (await fetchLandingHandoffConsume());
+      } else {
+        data = (await fetchLandingHandoffConsume()) || (await fetchStorePreviewHandoffConsume());
+      }
+
+      if (data?.formState) {
+        applyHandoffFormState(data.formState);
+      }
+    } catch {
+      // Keep landing defaults when handoff consume is unavailable.
+    }
+  }
+
   function applyPreset(preset) {
     const sizeVal = PRESETS[preset] || '3';
     const sizeInput = form.querySelector(`input[name="size"][value="${sizeVal}"]`);
@@ -858,7 +954,11 @@
   if (personalizationNameInput) {
     personalizationNameInput.required = false;
   }
-  updateSummary();
+
+  void consumeStoreHandoffPrefill().finally(() => {
+    updateSummary();
+  });
+
   if (LEGACY_CHECKOUT_ENABLED) {
     updateDeliveryDetailsLabel();
   } else {

@@ -12,7 +12,9 @@ const {
   clearLandingHandoffResetMarker,
   shouldResetLandingConfiguratorAfterHandoff,
   isOrderButtonInHandoffSubmittingState,
+  setOrderButtonHandoffSubmittingState,
   restoreOrderButtonReadyState,
+  isBackForwardNavigation,
   runDeferredHandoffReset,
   applyConfiguratorDomReset,
   readConfiguratorFormState,
@@ -131,16 +133,16 @@ function createConfiguratorDom(initial = {}) {
 }
 
 describe('landing handoff reset marker', () => {
-  it('marks pending reset immediately before protected POST handoff', () => {
+  it('marks pending reset before protected handoff navigation', () => {
     const script = fs.readFileSync(path.join(process.cwd(), 'script.js'), 'utf8');
     const indexHtml = fs.readFileSync(path.join(process.cwd(), 'index.html'), 'utf8');
 
     assert.match(indexHtml, /landing-handoff-reset\.js/);
     assert.match(script, /markLandingHandoffResetPending\(window\.sessionStorage\)/);
     assert.match(script, /submitCampaignCheckoutPostHandoff\(result\)/);
-    assert.doesNotMatch(
+    assert.match(
       script,
-      /markLandingHandoffResetPending[\s\S]*result\.mode === 'get'/,
+      /markLandingHandoffResetPending\(window\.sessionStorage\);[\s\S]*location\.assign\(result\.url\)/,
     );
   });
 
@@ -149,14 +151,17 @@ describe('landing handoff reset marker', () => {
     const indexHtml = fs.readFileSync(path.join(process.cwd(), 'index.html'), 'utf8');
     assert.match(script, /window\.addEventListener\('pageshow', handleLandingPageShow\)/);
     assert.match(script, /event\.persisted/);
-    assert.match(script, /forcePersistedRestore:\s*event\.persisted === true/);
+    assert.match(script, /getHandoffPageShowOptions\(event\)/);
+    assert.match(script, /isBackForwardNavigation/);
     assert.doesNotMatch(script, /applyLandingHandoffDomReset/);
+    assert.doesNotMatch(script, /orderBtn\.disabled = true/);
     assert.match(
       script,
       /resetConfiguratorAfterHandoff\(options\);[\s\S]*runDeferredHandoffReset\(\(\) => \{\s*resetConfiguratorAfterHandoff\(options\)/,
     );
     assert.match(script, /document\.addEventListener\('visibilitychange', handleLandingVisibilityChange\)/);
     assert.match(script, /restoreOrderButtonReadyState\(orderBtn/);
+    assert.match(script, /releaseStaleCheckoutHandoffState/);
     assert.match(
       script,
       /submitCampaignCheckoutPostHandoff\(result\);[\s\S]*resetConfiguratorAfterHandoff\(\{ forcePersistedRestore: true \}\)/,
@@ -400,9 +405,10 @@ describe('landing configurator reset after checkout handoff', () => {
     );
 
     let resetRan = false;
+    let passCount = 0;
     await runDeferredHandoffReset(() => {
-      dom.orderBtn.disabled = true;
-      dom.orderBtn.textContent = HANDOFF_SUBMITTING_BUTTON_TEXT;
+      passCount += 1;
+      setOrderButtonHandoffSubmittingState(dom.orderBtn, HANDOFF_SUBMITTING_BUTTON_TEXT);
       if (
         shouldResetLandingConfiguratorAfterHandoff({
           storage,
@@ -410,13 +416,34 @@ describe('landing configurator reset after checkout handoff', () => {
           orderBtn: dom.orderBtn,
         })
       ) {
-        applyConfiguratorDomReset(dom);
+        restoreOrderButtonReadyState(dom.orderBtn, DEFAULT_ORDER_BUTTON_TEXT);
         resetRan = true;
       }
     });
 
+    assert.equal(passCount, 3);
     assert.equal(resetRan, true);
     assert.equal(dom.orderBtn.disabled, false);
     assert.equal(dom.orderBtn.textContent, DEFAULT_ORDER_BUTTON_TEXT);
+  });
+
+  it('keeps checkout button clickable while redirecting', () => {
+    const orderBtn = {
+      disabled: false,
+      textContent: DEFAULT_ORDER_BUTTON_TEXT,
+      attributes: {},
+      setAttribute(name, value) {
+        this.attributes[name] = value;
+      },
+      removeAttribute(name) {
+        delete this.attributes[name];
+      },
+    };
+
+    setOrderButtonHandoffSubmittingState(orderBtn, HANDOFF_SUBMITTING_BUTTON_TEXT);
+    assert.equal(orderBtn.disabled, false);
+    assert.equal(isOrderButtonInHandoffSubmittingState(orderBtn), true);
+    restoreOrderButtonReadyState(orderBtn, DEFAULT_ORDER_BUTTON_TEXT);
+    assert.equal(isOrderButtonInHandoffSubmittingState(orderBtn), false);
   });
 });

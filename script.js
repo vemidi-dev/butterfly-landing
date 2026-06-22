@@ -584,6 +584,38 @@
     };
   }
 
+  function restoreCheckoutButtonReadyState() {
+    if (orderBtn) {
+      orderBtn.disabled = false;
+      orderBtn.textContent = ORDER_BTN_DEFAULT_TEXT;
+      orderBtn.removeAttribute?.('aria-busy');
+    }
+  }
+
+  function setCheckoutButtonSubmittingState() {
+    if (handoffReset?.setOrderButtonHandoffSubmittingState) {
+      handoffReset.setOrderButtonHandoffSubmittingState(orderBtn, ORDER_BTN_SUBMITTING_TEXT);
+      return;
+    }
+    if (orderBtn) {
+      orderBtn.textContent = ORDER_BTN_SUBMITTING_TEXT;
+      orderBtn.setAttribute?.('aria-busy', 'true');
+    }
+  }
+
+  function isCheckoutButtonInHandoffSubmittingState() {
+    return handoffReset?.isOrderButtonInHandoffSubmittingState(orderBtn)
+      || orderBtn?.textContent === ORDER_BTN_SUBMITTING_TEXT
+      || orderBtn?.disabled === true;
+  }
+
+  function getHandoffPageShowOptions(event) {
+    return {
+      forcePersistedRestore: event.persisted === true
+        || handoffReset?.isBackForwardNavigation?.() === true,
+    };
+  }
+
   function resetConfiguratorAfterHandoff(options = {}) {
     const forcePersistedRestore = options.forcePersistedRestore === true;
     const shouldReset = forcePersistedRestore
@@ -599,12 +631,30 @@
 
     handoffReset?.clearLandingHandoffResetMarker(window.sessionStorage);
     isSubmittingToStore = false;
-    handoffReset?.restoreOrderButtonReadyState(orderBtn, ORDER_BTN_DEFAULT_TEXT);
+    if (handoffReset?.restoreOrderButtonReadyState) {
+      handoffReset.restoreOrderButtonReadyState(orderBtn, ORDER_BTN_DEFAULT_TEXT);
+    } else {
+      restoreCheckoutButtonReadyState();
+    }
     return true;
   }
 
+  function releaseStaleCheckoutHandoffState(options = {}) {
+    const forcePersistedRestore = options.forcePersistedRestore === true;
+    if (
+      !forcePersistedRestore
+      && !isSubmittingToStore
+      && !isCheckoutButtonInHandoffSubmittingState()
+    ) {
+      return false;
+    }
+    return resetConfiguratorAfterHandoff({
+      forcePersistedRestore: true,
+    });
+  }
+
   function handleLandingPageShow(event) {
-    const options = { forcePersistedRestore: event.persisted === true };
+    const options = getHandoffPageShowOptions(event);
     resetConfiguratorAfterHandoff(options);
     // Chrome may restore form controls after pageshow handlers have run.
     // Re-evaluate after that restored DOM state is observable.
@@ -649,10 +699,7 @@
     }
 
     isSubmittingToStore = true;
-    if (orderBtn) {
-      orderBtn.disabled = true;
-      orderBtn.textContent = ORDER_BTN_SUBMITTING_TEXT;
-    }
+    setCheckoutButtonSubmittingState();
 
     if (result.mode === 'get') {
       try {
@@ -660,14 +707,12 @@
       } catch (err) {
         console.error('Unsafe campaign checkout URL:', err);
         isSubmittingToStore = false;
-        if (orderBtn) {
-          orderBtn.disabled = false;
-          orderBtn.textContent = ORDER_BTN_DEFAULT_TEXT;
-        }
+        restoreCheckoutButtonReadyState();
         showErrors(['Възникна проблем при пренасочването. Моля, свържи се с нас.']);
         return;
       }
 
+      handoffReset?.markLandingHandoffResetPending(window.sessionStorage);
       window.location.assign(result.url);
       // location.assign() schedules navigation. Restore the current history
       // entry now so Browser Back never revives a locked checkout button.
@@ -686,10 +731,7 @@
       console.error('Campaign checkout POST handoff failed:', err);
       handoffReset?.consumeLandingHandoffResetMarker(window.sessionStorage);
       isSubmittingToStore = false;
-      if (orderBtn) {
-        orderBtn.disabled = false;
-        orderBtn.textContent = ORDER_BTN_DEFAULT_TEXT;
-      }
+      restoreCheckoutButtonReadyState();
       showErrors(['Възникна проблем при изпращането. Моля, свържи се с нас.']);
     }
   }
@@ -868,6 +910,9 @@
   });
 
   orderBtn?.addEventListener('click', () => {
+    if (isSubmittingToStore || isCheckoutButtonInHandoffSubmittingState()) {
+      releaseStaleCheckoutHandoffState({ forcePersistedRestore: true });
+    }
     if (isSubmittingToStore) return;
 
     const state = getFormState();

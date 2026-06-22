@@ -584,17 +584,7 @@
     };
   }
 
-  function resetConfiguratorAfterHandoff() {
-    if (!handoffReset?.shouldResetLandingConfiguratorAfterHandoff({
-      storage: window.sessionStorage,
-      isSubmittingToStore,
-      orderBtn,
-    })) {
-      return false;
-    }
-
-    handoffReset.clearLandingHandoffResetMarker(window.sessionStorage);
-    isSubmittingToStore = false;
+  function applyLandingHandoffDomReset() {
     handoffReset.applyConfiguratorDomReset({
       form,
       personalizeToggle,
@@ -605,7 +595,47 @@
       orderBtnDefaultText: ORDER_BTN_DEFAULT_TEXT,
     });
     updateSummary();
+  }
+
+  function resetConfiguratorAfterHandoff(options = {}) {
+    const forcePersistedRestore = options.forcePersistedRestore === true;
+    const shouldReset = forcePersistedRestore
+      || handoffReset?.shouldResetLandingConfiguratorAfterHandoff({
+        storage: window.sessionStorage,
+        isSubmittingToStore,
+        orderBtn,
+      });
+
+    if (!shouldReset) {
+      return false;
+    }
+
+    handoffReset?.clearLandingHandoffResetMarker(window.sessionStorage);
+    isSubmittingToStore = false;
+    handoffReset?.restoreOrderButtonReadyState(orderBtn, ORDER_BTN_DEFAULT_TEXT);
+    handoffReset?.runDeferredHandoffReset(applyLandingHandoffDomReset);
     return true;
+  }
+
+  function handleLandingPageShow(event) {
+    if (event.persisted) {
+      resetConfiguratorAfterHandoff({ forcePersistedRestore: true });
+      return;
+    }
+    resetConfiguratorAfterHandoff();
+  }
+
+  function handleLandingVisibilityChange() {
+    if (document.visibilityState !== 'visible') {
+      return;
+    }
+    if (
+      !isSubmittingToStore
+      && !handoffReset?.isOrderButtonInHandoffSubmittingState(orderBtn)
+    ) {
+      return;
+    }
+    resetConfiguratorAfterHandoff();
   }
 
   function submitToStore(configState) {
@@ -905,9 +935,8 @@
     personalizationNameInput.required = false;
   }
 
-  window.addEventListener('pageshow', () => {
-    resetConfiguratorAfterHandoff();
-  });
+  window.addEventListener('pageshow', handleLandingPageShow);
+  document.addEventListener('visibilitychange', handleLandingVisibilityChange);
 
   showStoreSourceNotice();
   updateSummary();

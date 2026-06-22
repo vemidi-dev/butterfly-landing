@@ -623,19 +623,21 @@
       return;
     }
     resetConfiguratorAfterHandoff();
+    // Chrome may restore form controls after pageshow handlers have run.
+    // Re-evaluate after that restored DOM state is observable.
+    handoffReset?.runDeferredHandoffReset(() => {
+      resetConfiguratorAfterHandoff();
+    });
   }
 
   function handleLandingVisibilityChange() {
     if (document.visibilityState !== 'visible') {
       return;
     }
-    if (
-      !isSubmittingToStore
-      && !handoffReset?.isOrderButtonInHandoffSubmittingState(orderBtn)
-    ) {
-      return;
-    }
     resetConfiguratorAfterHandoff();
+    handoffReset?.runDeferredHandoffReset(() => {
+      resetConfiguratorAfterHandoff();
+    });
   }
 
   function submitToStore(configState) {

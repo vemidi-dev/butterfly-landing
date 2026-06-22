@@ -151,6 +151,10 @@ describe('landing handoff reset marker', () => {
     assert.match(script, /event\.persisted/);
     assert.match(script, /forcePersistedRestore:\s*true/);
     assert.match(script, /runDeferredHandoffReset\(applyLandingHandoffDomReset\)/);
+    assert.match(
+      script,
+      /resetConfiguratorAfterHandoff\(\);[\s\S]*runDeferredHandoffReset\(\(\) => \{\s*resetConfiguratorAfterHandoff\(\)/,
+    );
     assert.match(script, /document\.addEventListener\('visibilitychange', handleLandingVisibilityChange\)/);
     assert.match(script, /restoreOrderButtonReadyState\(orderBtn/);
     assert.match(indexHtml, new RegExp(`/lib/landing-handoff-reset\\.js\\?v=${LANDING_ASSET_VERSION}`));
@@ -353,5 +357,41 @@ describe('landing configurator reset after checkout handoff', () => {
     assert.equal(orderBtn.disabled, false);
     assert.equal(orderBtn.textContent, DEFAULT_ORDER_BUTTON_TEXT);
     assert.equal(isOrderButtonInHandoffSubmittingState(orderBtn), false);
+  });
+
+  it('re-checks handoff state after browser control restoration', async () => {
+    const storage = createMockStorage();
+    const dom = createConfiguratorDom();
+    dom.orderBtn.disabled = false;
+    dom.orderBtn.textContent = DEFAULT_ORDER_BUTTON_TEXT;
+
+    assert.equal(
+      shouldResetLandingConfiguratorAfterHandoff({
+        storage,
+        isSubmittingToStore: false,
+        orderBtn: dom.orderBtn,
+      }),
+      false,
+    );
+
+    let resetRan = false;
+    await runDeferredHandoffReset(() => {
+      dom.orderBtn.disabled = true;
+      dom.orderBtn.textContent = HANDOFF_SUBMITTING_BUTTON_TEXT;
+      if (
+        shouldResetLandingConfiguratorAfterHandoff({
+          storage,
+          isSubmittingToStore: false,
+          orderBtn: dom.orderBtn,
+        })
+      ) {
+        applyConfiguratorDomReset(dom);
+        resetRan = true;
+      }
+    });
+
+    assert.equal(resetRan, true);
+    assert.equal(dom.orderBtn.disabled, false);
+    assert.equal(dom.orderBtn.textContent, DEFAULT_ORDER_BUTTON_TEXT);
   });
 });

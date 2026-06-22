@@ -584,19 +584,6 @@
     };
   }
 
-  function applyLandingHandoffDomReset() {
-    handoffReset.applyConfiguratorDomReset({
-      form,
-      personalizeToggle,
-      nameField,
-      personalizationNameInput,
-      configErrors,
-      orderBtn,
-      orderBtnDefaultText: ORDER_BTN_DEFAULT_TEXT,
-    });
-    updateSummary();
-  }
-
   function resetConfiguratorAfterHandoff(options = {}) {
     const forcePersistedRestore = options.forcePersistedRestore === true;
     const shouldReset = forcePersistedRestore
@@ -613,20 +600,16 @@
     handoffReset?.clearLandingHandoffResetMarker(window.sessionStorage);
     isSubmittingToStore = false;
     handoffReset?.restoreOrderButtonReadyState(orderBtn, ORDER_BTN_DEFAULT_TEXT);
-    handoffReset?.runDeferredHandoffReset(applyLandingHandoffDomReset);
     return true;
   }
 
   function handleLandingPageShow(event) {
-    if (event.persisted) {
-      resetConfiguratorAfterHandoff({ forcePersistedRestore: true });
-      return;
-    }
-    resetConfiguratorAfterHandoff();
+    const options = { forcePersistedRestore: event.persisted === true };
+    resetConfiguratorAfterHandoff(options);
     // Chrome may restore form controls after pageshow handlers have run.
     // Re-evaluate after that restored DOM state is observable.
     handoffReset?.runDeferredHandoffReset(() => {
-      resetConfiguratorAfterHandoff();
+      resetConfiguratorAfterHandoff(options);
     });
   }
 
@@ -686,12 +669,19 @@
       }
 
       window.location.assign(result.url);
+      // location.assign() schedules navigation. Restore the current history
+      // entry now so Browser Back never revives a locked checkout button.
+      resetConfiguratorAfterHandoff({ forcePersistedRestore: true });
       return;
     }
 
     try {
       handoffReset?.markLandingHandoffResetPending(window.sessionStorage);
       handoff.submitCampaignCheckoutPostHandoff(result);
+      // Form submission has already been initiated. Keep the selected
+      // configuration, but store this history entry in a ready state so the
+      // customer can go Back and submit it again.
+      resetConfiguratorAfterHandoff({ forcePersistedRestore: true });
     } catch (err) {
       console.error('Campaign checkout POST handoff failed:', err);
       handoffReset?.consumeLandingHandoffResetMarker(window.sessionStorage);

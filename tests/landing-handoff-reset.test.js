@@ -144,22 +144,47 @@ describe('landing handoff reset marker', () => {
     );
   });
 
-  it('resets configurator on pageshow when marker exists', () => {
+  it('restores checkout readiness on pageshow without clearing selections', () => {
     const script = fs.readFileSync(path.join(process.cwd(), 'script.js'), 'utf8');
     const indexHtml = fs.readFileSync(path.join(process.cwd(), 'index.html'), 'utf8');
     assert.match(script, /window\.addEventListener\('pageshow', handleLandingPageShow\)/);
     assert.match(script, /event\.persisted/);
-    assert.match(script, /forcePersistedRestore:\s*true/);
-    assert.match(script, /runDeferredHandoffReset\(applyLandingHandoffDomReset\)/);
+    assert.match(script, /forcePersistedRestore:\s*event\.persisted === true/);
+    assert.doesNotMatch(script, /applyLandingHandoffDomReset/);
     assert.match(
       script,
-      /resetConfiguratorAfterHandoff\(\);[\s\S]*runDeferredHandoffReset\(\(\) => \{\s*resetConfiguratorAfterHandoff\(\)/,
+      /resetConfiguratorAfterHandoff\(options\);[\s\S]*runDeferredHandoffReset\(\(\) => \{\s*resetConfiguratorAfterHandoff\(options\)/,
     );
     assert.match(script, /document\.addEventListener\('visibilitychange', handleLandingVisibilityChange\)/);
     assert.match(script, /restoreOrderButtonReadyState\(orderBtn/);
+    assert.match(
+      script,
+      /submitCampaignCheckoutPostHandoff\(result\);[\s\S]*resetConfiguratorAfterHandoff\(\{ forcePersistedRestore: true \}\)/,
+    );
     assert.match(indexHtml, new RegExp(`/lib/landing-handoff-reset\\.js\\?v=${LANDING_ASSET_VERSION}`));
     assert.match(indexHtml, new RegExp(`/script\\.js\\?v=${LANDING_ASSET_VERSION}`));
     assert.doesNotMatch(script, /showStoreSourceNotice\(\);\s*\n\s*resetConfiguratorAfterHandoff\(\)/);
+  });
+
+  it('preserves configured values when releasing the handoff button', () => {
+    const storage = createMockStorage();
+    const dom = createConfiguratorDom({
+      size: '5',
+      coloring: 'markers',
+      personalize: true,
+      personalizationName: 'Мария',
+      nameFieldCollapsed: false,
+    });
+    const before = readConfiguratorFormState(dom.form);
+
+    markLandingHandoffResetPending(storage);
+    clearLandingHandoffResetMarker(storage);
+    restoreOrderButtonReadyState(dom.orderBtn, DEFAULT_ORDER_BUTTON_TEXT);
+
+    assert.deepEqual(readConfiguratorFormState(dom.form), before);
+    assert.equal(dom.orderBtn.disabled, false);
+    assert.equal(dom.orderBtn.textContent, DEFAULT_ORDER_BUTTON_TEXT);
+    assert.equal(storage.getItem(LANDING_HANDOFF_RESET_MARKER), null);
   });
 });
 
